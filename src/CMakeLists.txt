@@ -1,5 +1,12 @@
 cmake_minimum_required(VERSION 3.20)
 
+find_package(ECM REQUIRED NO_MODULE)
+list(APPEND CMAKE_MODULE_PATH ${ECM_MODULE_PATH} ${ECM_KDE_MODULE_DIR})
+
+include(ECMQueryQt)
+ecm_query_qt(INSTALL_QMLDIR QT_INSTALL_QML)
+
+
 if (FLUENTUI_BUILD_STATIC_LIB AND (QT_VERSION VERSION_GREATER_EQUAL "6.2"))
     project(fluentui VERSION 1.0)
 else()
@@ -138,10 +145,10 @@ endif()
 
 #链接库
 target_link_libraries(${PROJECT_NAME} PUBLIC
-    Qt${QT_VERSION_MAJOR}::CorePrivate
-    Qt${QT_VERSION_MAJOR}::QuickPrivate
-    Qt${QT_VERSION_MAJOR}::QmlPrivate
+    Qt${QT_VERSION_MAJOR}::Core
+    Qt${QT_VERSION_MAJOR}::Quick
+    Qt${QT_VERSION_MAJOR}::Qml
 )
 
 #安装
-install(DIRECTORY ${FLUENTUI_QML_PLUGIN_DIRECTORY} DESTINATION ${CMAKE_INSTALL_PREFIX}/imports)
+install(DIRECTORY ${FLUENTUI_QML_PLUGIN_DIRECTORY} DESTINATION ${INSTALL_QMLDIR})
