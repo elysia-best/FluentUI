@@ -6,13 +6,14 @@ import FluentUI 1.0
 
 Rectangle{
     property string title: ""
-    property string darkText : "夜间模式"
-    property string minimizeText : "最小化"
-    property string restoreText : "向下还原"
-    property string maximizeText : "最大化"
-    property string closeText : "关闭"
-    property string stayTopText : "置顶"
-    property string stayTopCancelText : "取消置顶"
+    property string darkText : qsTr("Dark")
+    property string lightText : qsTr("Light")
+    property string minimizeText : qsTr("Minimize")
+    property string restoreText : qsTr("Restore")
+    property string maximizeText : qsTr("Maximize")
+    property string closeText : qsTr("Close")
+    property string stayTopText : qsTr("Sticky on Top")
+    property string stayTopCancelText : qsTr("Sticky on Top cancelled")
     property color textColor: FluTheme.dark ? "#FFFFFF" : "#000000"
     property color minimizeNormalColor: FluTheme.itemNormalColor
     property color minimizeHoverColor: FluTheme.itemHoverColor
@@ -33,22 +34,27 @@ Rectangle{
     property int iconSize: 20
     property bool isMac: FluTools.isMacos()
     property color borerlessColor : FluTheme.primaryColor
+    property bool systemMoveEnable: true
     property var maxClickListener : function(){
         if(FluTools.isMacos()){
             if (d.win.visibility === Window.FullScreen)
-                d.win.visibility = Window.Windowed
+                d.win.showNormal()
             else
-                d.win.visibility = Window.FullScreen
+                d.win.showFullScreen()
         }else{
             if (d.win.visibility === Window.Maximized)
-                d.win.visibility = Window.Windowed
+                d.win.showNormal()
             else
-                d.win.visibility = Window.Maximized
+                d.win.showMaximized()
             d.hoverMaxBtn = false
         }
     }
     property var minClickListener: function(){
-        d.win.visibility = Window.Minimized
+        if(d.win.transientParent != null){
+            d.win.transientParent.showMinimized()
+        }else{
+            d.win.showMinimized()
+        }
     }
     property var closeClickListener : function(){
         d.win.close()
@@ -70,6 +76,11 @@ Rectangle{
             d.win.showSystemMenu()
         }
     }
+    property alias buttonStayTop: btn_stay_top
+    property alias buttonMinimize: btn_minimize
+    property alias buttonMaximize: btn_maximize
+    property alias buttonClose: btn_close
+    property alias buttonDark: btn_dark
     id:control
     color: Qt.rgba(0,0,0,0)
     height: visible ? 30 : 0
@@ -77,6 +88,7 @@ Rectangle{
     z: 65535
     Item{
         id:d
+        property var hitTestList: []
         property bool hoverMaxBtn: false
         property var win: Window.window
         property bool stayTop: {
@@ -87,23 +99,34 @@ Rectangle{
         }
         property bool isRestore: win && Window.Maximized === win.visibility
         property bool resizable: win && !(win.height === win.maximumHeight && win.height === win.minimumHeight && win.width === win.maximumWidth && win.width === win.minimumWidth)
+        function containsPointToItem(point,item){
+            var pos = item.mapToGlobal(0,0)
+            var rect = Qt.rect(pos.x,pos.y,item.width,item.height)
+            if(point.x>rect.x && point.x<(rect.x+rect.width) && point.y>rect.y && point.y<(rect.y+rect.height)){
+                return true
+            }
+            return false
+        }
     }
     MouseArea{
+        id:mouse_app_bar
         anchors.fill: parent
         onPositionChanged:
             (mouse)=>{
-                d.win.startSystemMove()
+                if(systemMoveEnable){
+                    d.win.startSystemMove()
+                }
             }
         onDoubleClicked:
             (mouse)=>{
-                if(d.resizable && Qt.LeftButton){
+                if(systemMoveEnable && d.resizable && Qt.LeftButton){
                     btn_maximize.clicked()
                 }
             }
         acceptedButtons: Qt.LeftButton|Qt.RightButton
         onClicked:
             (mouse)=>{
-                if (mouse.button === Qt.RightButton){
+                if (systemMoveEnable && mouse.button === Qt.RightButton){
                     control.systemMenuListener()
                 }
             }
@@ -174,27 +197,40 @@ Rectangle{
     }
 
     RowLayout{
+        id:layout_row
         anchors.right: parent.right
         height: control.height
         spacing: 0
-        FluToggleSwitch{
+        Component.onCompleted: {
+            setHitTestVisible(layout_row)
+        }
+        FluIconButton{
             id:btn_dark
+            Layout.preferredWidth: 40
+            Layout.preferredHeight: 30
+            padding: 0
+            verticalPadding: 0
+            horizontalPadding: 0
+            rightPadding: 2
+            iconSource: FluTheme.dark ? FluentIcons.Brightness : FluentIcons.QuietHours
             Layout.alignment: Qt.AlignVCenter
-            Layout.rightMargin: 5
+            iconSize: 15
             visible: showDark
-            text:darkText
-            textColor:control.textColor
-            checked: FluTheme.dark
-            textRight: false
-            clickListener:()=> darkClickListener(btn_dark)
+            text: FluTheme.dark ? control.lightText : control.darkText
+            radius: 0
+            iconColor:control.textColor
+            onClicked:()=> darkClickListener(btn_dark)
         }
         FluIconButton{
             id:btn_stay_top
             Layout.preferredWidth: 40
             Layout.preferredHeight: 30
+            padding: 0
+            verticalPadding: 0
+            horizontalPadding: 0
             iconSource : FluentIcons.Pinned
             Layout.alignment: Qt.AlignVCenter
-            iconSize: 13
+            iconSize: 14
             visible: {
                 if(!(d.win instanceof FluWindow)){
                     return false
@@ -210,6 +246,9 @@ Rectangle{
             id:btn_minimize
             Layout.preferredWidth: 40
             Layout.preferredHeight: 30
+            padding: 0
+            verticalPadding: 0
+            horizontalPadding: 0
             iconSource : FluentIcons.ChromeMinimize
             Layout.alignment: Qt.AlignVCenter
             iconSize: 11
@@ -229,9 +268,12 @@ Rectangle{
             id:btn_maximize
             Layout.preferredWidth: 40
             Layout.preferredHeight: 30
+            padding: 0
+            verticalPadding: 0
+            horizontalPadding: 0
             iconSource : d.isRestore  ? FluentIcons.ChromeRestore : FluentIcons.ChromeMaximize
             color: {
-                if(pressed){
+                if(down){
                     return maximizePressColor
                 }
                 if(FluTools.isWindows11OrGreater()){
@@ -249,11 +291,14 @@ Rectangle{
         }
         FluIconButton{
             id:btn_close
+            Layout.preferredWidth: 40
+            Layout.preferredHeight: 30
+            padding: 0
+            verticalPadding: 0
+            horizontalPadding: 0
             iconSource : FluentIcons.ChromeClose
             Layout.alignment: Qt.AlignVCenter
             text:closeText
-            Layout.preferredWidth: 40
-            Layout.preferredHeight: 30
             visible: !isMac && showClose
             radius: 0
             iconSize: 10
@@ -267,32 +312,36 @@ Rectangle{
             onClicked: closeClickListener()
         }
     }
-    function stayTopButton(){
-        return btn_stay_top
-    }
-    function minimizeButton(){
-        return btn_minimize
-    }
-    function maximizeButton(){
-        return btn_maximize
-    }
-    function closeButton(){
-        return btn_close
-    }
-    function darkButton(){
-        return btn_dark
-    }
-    function maximizeButtonHover(){
-        var hover = false;
-        var pos = btn_maximize.mapToGlobal(0,0)
-        if(btn_maximize.visible){
-            var rect = Qt.rect(pos.x,pos.y,btn_maximize.width,btn_maximize.height)
-            pos = FluTools.cursorPos()
-            if(pos.x>rect.x && pos.x<(rect.x+rect.width) && pos.y>rect.y && pos.y<(rect.y+rect.height)){
-                hover = true;
+    function _maximizeButtonHover(){
+        var hover = false
+        if(btn_maximize.visible && FluTools.isWindows11OrGreater() && d.resizable){
+            if(d.containsPointToItem(FluTools.cursorPos(),btn_maximize)){
+                hover = true
+            }else{
+                if(btn_maximize.down){
+                    btn_maximize.down = false
+                }
             }
         }
         d.hoverMaxBtn = hover
         return hover;
+    }
+    function _appBarHover(){
+        var cursorPos = FluTools.cursorPos()
+        for(var i =0 ;i< d.hitTestList.length; i++){
+            var item = d.hitTestList[i]
+            if(item.visible){
+                if(d.containsPointToItem(cursorPos,item)){
+                    return false
+                }
+            }
+        }
+        if(d.containsPointToItem(cursorPos,control)){
+            return true
+        }
+        return false
+    }
+    function setHitTestVisible(id){
+        d.hitTestList.push(id)
     }
 }

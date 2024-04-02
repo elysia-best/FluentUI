@@ -7,23 +7,7 @@ import "../component"
 
 FluScrollablePage{
 
-    title:"CalendarPicker"
-
-    FluArea{
-        Layout.fillWidth: true
-        Layout.topMargin: 20
-        height: 350
-        paddings: 10
-        FluCalendarView{
-        }
-    }
-    CodeExpander{
-        Layout.fillWidth: true
-        Layout.topMargin: -1
-        code:'FluCalendarView{
-
-}'
-    }
+    title: qsTr("CalendarPicker")
 
     FluArea{
         Layout.fillWidth: true
@@ -36,7 +20,6 @@ FluScrollablePage{
                 left: parent.left
             }
             FluCalendarPicker{
-                current:new Date()
                 onAccepted:{
                     showSuccess(current.toLocaleString())
                 }

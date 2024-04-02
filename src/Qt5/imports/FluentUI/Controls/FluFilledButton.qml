@@ -37,14 +37,28 @@ Button {
             visible: control.visualFocus
             radius:4
         }
-        color:{
-            if(!enabled){
-                return disableColor
+        gradient: Gradient {
+            GradientStop { position: 0.33; color: control.enabled ? control.normalColor : Qt.rgba(0,0,0,0) }
+            GradientStop { position: 1.0; color: control.enabled ? Qt.darker(control.normalColor,1.3) : Qt.rgba(0,0,0,0) }
+        }
+        Rectangle{
+            radius: parent.radius
+            anchors{
+                fill: parent
+                topMargin: control.enabled ? 0 : 0
+                leftMargin: control.enabled ? 1 : 0
+                rightMargin: control.enabled ? 1 : 0
+                bottomMargin: control.enabled ? 2 : 0
             }
-            if(pressed){
-                return pressedColor
+            color:{
+                if(!enabled){
+                    return disableColor
+                }
+                if(pressed){
+                    return pressedColor
+                }
+                return hovered ? hoverColor :normalColor
             }
-            return hovered ? hoverColor :normalColor
         }
     }
     contentItem: FluText {

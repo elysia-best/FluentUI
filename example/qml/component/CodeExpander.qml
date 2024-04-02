@@ -8,25 +8,20 @@ FluExpander{
 
     id:control
     property string code: ""
-    headerText: "Source"
+    headerText: qsTr("Source")
     contentHeight:content.height
     focus: false
 
-    FluMultilineTextBox{
+    FluCopyableText{
         id:content
         width:parent.width
-        activeFocusOnTab: false
-        activeFocusOnPress: false
-        readOnly: true
         text:highlightQmlCode(code)
         textFormat: FluMultilineTextBox.RichText
-        KeyNavigation.priority: KeyNavigation.BeforeItem
-        background:Rectangle{
-            radius: 4
-            color:FluTheme.dark ? Qt.rgba(50/255,50/255,50/255,1) : Qt.rgba(247/255,247/255,247/255,1)
-            border.color: FluTheme.dark ? Qt.rgba(45/255,45/255,45/255,1) : Qt.rgba(226/255,229/255,234/255,1)
-            border.width: 1
-        }
+        padding: 10
+        topPadding: 10
+        leftPadding: 10
+        rightPadding: 10
+        bottomPadding: 10
     }
 
     FluIconButton{
@@ -39,7 +34,7 @@ FluExpander{
         }
         onClicked:{
             FluTools.clipText(FluTools.html2PlantText(content.text))
-            showSuccess("复制成功")
+            showSuccess(qsTr("The Copy is Successful"))
         }
     }
 
@@ -54,7 +49,6 @@ FluExpander{
     }
 
     function highlightQmlCode(code) {
-        // 定义 QML 关键字列表
         var qmlKeywords = [
                     "FluTextButton",
                     "FluAppBar",
@@ -118,7 +112,7 @@ FluExpander{
                     "FluTableView",
                     "FluColors",
                     "FluTheme",
-                    "FluStatusView",
+                    "FluStatusLayout",
                     "FluRatingControl",
                     "FluPasswordBox",
                     "FluBreadcrumbBar",

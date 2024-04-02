@@ -8,9 +8,9 @@ FluPopup {
     id: control
     property string title: ""
     property string message: ""
-    property string neutralText: "Close"
-    property string negativeText: "Cancel"
-    property string positiveText: "OK"
+    property string neutralText: qsTr("Close")
+    property string negativeText: qsTr("Cancel")
+    property string positiveText: qsTr("OK")
     property int messageTextFormart: Text.AutoText
     property int delayTime: 100
     property int buttonFlags: FluContentDialogType.NegativeButton | FluContentDialogType.PositiveButton
@@ -102,9 +102,9 @@ FluPopup {
                     Item{
                         Layout.fillWidth: true
                         Layout.fillHeight: true
-                        visible: control.buttonFlags&FluContentDialogType.NeutralButton
                         FluButton{
                             id:neutral_btn
+                            visible: control.buttonFlags&FluContentDialogType.NeutralButton
                             text: neutralText
                             width: parent.width
                             anchors.centerIn: parent
@@ -121,9 +121,9 @@ FluPopup {
                     Item{
                         Layout.fillWidth: true
                         Layout.fillHeight: true
-                        visible: control.buttonFlags&FluContentDialogType.NegativeButton
                         FluButton{
                             id:negative_btn
+                            visible: control.buttonFlags&FluContentDialogType.NegativeButton
                             width: parent.width
                             anchors.centerIn: parent
                             text: negativeText
@@ -140,9 +140,9 @@ FluPopup {
                     Item{
                         Layout.fillWidth: true
                         Layout.fillHeight: true
-                        visible: control.buttonFlags&FluContentDialogType.PositiveButton
                         FluFilledButton{
                             id:positive_btn
+                            visible: control.buttonFlags&FluContentDialogType.PositiveButton
                             text: positiveText
                             width: parent.width
                             anchors.centerIn: parent

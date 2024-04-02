@@ -7,7 +7,7 @@ import FluentUI 1.0
 
 FluScrollablePage{
 
-    title:"Pagination"
+    title: qsTr("Pagination")
 
     FluArea{
         Layout.fillWidth: true

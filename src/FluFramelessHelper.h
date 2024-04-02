@@ -17,6 +17,9 @@ using QT_ENTER_EVENT_TYPE = QEvent;
 
 class FluFramelessHelper;
 
+/**
+ * @brief The FramelessEventFilter class
+ */
 class FramelessEventFilter : public QAbstractNativeEventFilter
 {
 public:
@@ -27,6 +30,9 @@ public:
     qint64 _current = 0;
 };
 
+/**
+ * @brief The FluFramelessHelper class
+ */
 class FluFramelessHelper : public QObject, public QQmlParserStatus
 {
     Q_OBJECT
@@ -38,17 +44,21 @@ public:
     void classBegin() override;
     void componentComplete() override;
     bool hoverMaxBtn();
+    bool hoverAppBar();
     bool resizeable();
+    int getMargins();
+    bool maximized();
+    bool fullScreen();
+    int getAppBarHeight();
+    QVariant getAppBar();
     QObject* maximizeButton();
-    void setOriginalPos(QVariant pos);
-    Q_INVOKABLE void showSystemMenu();
+    Q_INVOKABLE void showSystemMenu(QPoint point);
+    Q_INVOKABLE void showMaximized();
     Q_SIGNAL void loadCompleted();
 protected:
     bool eventFilter(QObject *obj, QEvent *event) override;
 private:
     void _updateCursor(int edges);
-    bool _maximized();
-    bool _fullScreen();
     Q_SLOT void _onStayTopChange();
     Q_SLOT void _onScreenChanged();
 public:
@@ -57,12 +67,13 @@ private:
     FramelessEventFilter* _nativeEvent = nullptr;
     QQmlProperty _stayTop;
     QQmlProperty _screen;
-    QQmlProperty _originalPos;
     QQmlProperty _fixSize;
     QQmlProperty _realHeight;
     QQmlProperty _realWidth;
     QQmlProperty _appBarHeight;
+    QVariant _appBar;
     int _edges = 0;
+    int _margins = 8;
 };
 
 #endif // FLUFRAMELESSHELPER_H

@@ -8,42 +8,62 @@
 #include <QUuid>
 #include <QFontDatabase>
 #include <QClipboard>
+#include <QTranslator>
+
+FluWindowRegister::FluWindowRegister(QObject *parent):QObject{parent}{
+    from(nullptr);
+    to(nullptr);
+    path("");
+}
+
+void FluWindowRegister::launch(const QJsonObject& argument){
+    FluApp::getInstance()->navigate(path(),argument,this);
+}
+
+void FluWindowRegister::onResult(const QJsonObject& data){
+    Q_EMIT result(data);
+}
 
 FluApp::FluApp(QObject *parent):QObject{parent}{
-    vsync(true);
     useSystemAppBar(false);
 }
 
 FluApp::~FluApp(){
 }
 
-void FluApp::init(QObject *application){
-    this->_application = application;
-    QJSEngine * jsEngine = qjsEngine(_application);
-    std::string jsFunction = R"( (function () { console.log("FluentUI");}) )";
-    QJSValue function = jsEngine->evaluate(QString::fromStdString(jsFunction));
-    jsEngine->globalObject().setProperty("__fluentui",function);
+void FluApp::init(QObject *target,QLocale locale){
+    _locale = locale;
+    _engine = qmlEngine(target);
+    _translator = new QTranslator(this);
+    qApp->installTranslator(_translator);
+    const QStringList uiLanguages = _locale.uiLanguages();
+    for (const QString &name : uiLanguages) {
+        const QString baseName = "fluentui_" + QLocale(name).name();
+        if (_translator->load(":/qt/qml/FluentUI/i18n/"+ baseName)) {
+            _engine->retranslate();
+            break;
+        }
+    }
 }
 
 void FluApp::run(){
     navigate(initialRoute());
 }
 
-void FluApp::navigate(const QString& route,const QJsonObject& argument,FluRegister* fluRegister){
+void FluApp::navigate(const QString& route,const QJsonObject& argument,FluWindowRegister* windowRegister){
     if(!routes().contains(route)){
-        qCritical()<<"No route found "<<route;
+        qCritical()<<"Not Found Route "<<route;
         return;
     }
-    QQmlEngine *engine = qmlEngine(_application);
-    QQmlComponent component(engine, routes().value(route).toString());
+    QQmlComponent component(_engine, routes().value(route).toString());
     if (component.isError()) {
         qCritical() << component.errors();
         return;
     }
     QVariantMap properties;
     properties.insert("_route",route);
-    if(fluRegister){
-        properties.insert("_pageRegister",QVariant::fromValue(fluRegister));
+    if(windowRegister){
+        properties.insert("_windowRegister",QVariant::fromValue(windowRegister));
     }
     properties.insert("argument",argument);
     QQuickWindow *win=nullptr;
@@ -57,7 +77,7 @@ void FluApp::navigate(const QString& route,const QJsonObject& argument,FluRegist
     if(win){
         int launchMode = win->property("launchMode").toInt();
         if(launchMode == 1){
-            win->setProperty("argument",argument);
+            win->setProperty("",argument);
             win->show();
             win->raise();
             win->requestActivate();
@@ -67,10 +87,9 @@ void FluApp::navigate(const QString& route,const QJsonObject& argument,FluRegist
         }
     }
     win = qobject_cast<QQuickWindow*>(component.createWithInitialProperties(properties));
-    if(fluRegister){
-        fluRegister->to(win);
+    if(windowRegister){
+        windowRegister->to(win);
     }
-    win->setColor(QColor(Qt::transparent));
 }
 
 void FluApp::exit(int retCode){
@@ -91,4 +110,11 @@ void FluApp::removeWindow(QQuickWindow* window){
         window->deleteLater();
         window = nullptr;
     }
+}
+
+QVariant FluApp::createWindowRegister(QQuickWindow* window,const QString& path){
+    FluWindowRegister *p = new FluWindowRegister(window);
+    p->from(window);
+    p->path(path);
+    return  QVariant::fromValue(p);
 }

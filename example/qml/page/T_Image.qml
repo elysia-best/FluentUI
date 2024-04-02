@@ -7,7 +7,7 @@ import "../component"
 
 FluScrollablePage{
 
-    title:"Image"
+    title: qsTr("Image")
 
     FluArea{
         Layout.fillWidth: true
@@ -26,7 +26,7 @@ FluScrollablePage{
                 source: "https://gitee.com/zhu-zichu/zhu-zichu/raw/74f075efe2f8d3c3bb7ba3c2259e403450e4050b/image/banner_4.jpg"
                 onStatusChanged:{
                     if(status === Image.Error){
-                        showError("图片加载失败，请重新加载")
+                        showError(qsTr("The image failed to load, please reload"))
                     }
                 }
                 clickErrorListener: function(){

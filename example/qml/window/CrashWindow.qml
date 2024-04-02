@@ -8,14 +8,17 @@ import "../component"
 FluWindow {
 
     id:window
-    title:"友情提示"
+    title: qsTr("Friendly Reminder")
     width: 300
     height: 400
     fixSize: true
     showMinimize: false
-    showStayTop: false
 
     property string crashFilePath
+
+    Component.onCompleted: {
+        window.stayTop = true
+    }
 
     onInitArgument:
         (argument)=>{
@@ -36,11 +39,15 @@ FluWindow {
     FluText{
         id:text_info
         anchors{
-            horizontalCenter: parent.horizontalCenter
             top: parent.top
             topMargin: 240
+            left: parent.left
+            right: parent.right
+            leftMargin: 10
+            rightMargin: 10
         }
-        text:"发生意外错误\n给您带来的不便，我们深表歉意"
+        wrapMode: Text.WrapAnywhere
+        text: qsTr("We apologize for the inconvenience caused by an unexpected error")
         horizontalAlignment: Text.AlignHCenter
         verticalAlignment: Text.AlignVCenter
     }
@@ -52,7 +59,7 @@ FluWindow {
             bottomMargin: 20
         }
         FluButton{
-            text:"日志上报"
+            text: qsTr("Report Logs")
             onClicked: {
                 FluTools.showFileInFolder(crashFilePath)
             }
@@ -62,7 +69,7 @@ FluWindow {
             height: 1
         }
         FluFilledButton{
-            text:"重启程序"
+            text: qsTr("Restart Program")
             onClicked: {
                 FluApp.exit(931)
             }

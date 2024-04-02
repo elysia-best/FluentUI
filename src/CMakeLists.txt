@@ -13,25 +13,57 @@ else()
     project(fluentuiplugin VERSION 1.0)
 endif()
 
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/.cmake/)
+
 #配置通用编译
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+#设置版本号
+add_definitions(-DFLUENTUI_VERSION=1,7,3,0)
 
 if (FLUENTUI_BUILD_STATIC_LIB)
     add_definitions(-DFLUENTUI_BUILD_STATIC_LIB)
 endif()
 
+#编译参数设置
+option(FLUENTUI_BUILD_STATIC_LIB "Build static library." OFF)
+
 #导入Qt相关依赖包
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core Quick Qml)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Quick Qml)
+
+set(QT_SDK_DIR "${Qt${QT_VERSION_MAJOR}_DIR}/../../..")
+cmake_path(SET QT_SDK_DIR NORMALIZE ${QT_SDK_DIR})
+
+#设置QML插件输出目录，可以通过外部设置，如果外部没有设置就默认到<QT_SDK_DIR_PATH>\qml\FluentUI目录下
+set(FLUENTUI_QML_PLUGIN_DIRECTORY "" CACHE PATH "Path to FluentUI plugin")
+if(NOT FLUENTUI_QML_PLUGIN_DIRECTORY)
+    set(FLUENTUI_QML_PLUGIN_DIRECTORY ${QT_SDK_DIR}/qml/FluentUI)
+endif()
 
 if(QT_VERSION VERSION_GREATER_EQUAL "6.3")
     qt_standard_project_setup()
 else()
     set(CMAKE_AUTOMOC ON)
     set(CMAKE_AUTORCC ON)
-    set(CMAKE_AUTOUIC ON)
+    set(CMAKE_INCLUDE_CURRENT_DIR ON)
 endif()
+
+#国际化
+find_program(QT_LUPDATE NAMES lupdate)
+find_program(QT_LRELEASE NAMES lrelease)
+if (NOT EXISTS ${CMAKE_CURRENT_LIST_DIR}/fluentui_en_US.qm)
+    execute_process(COMMAND ${QT_LUPDATE} ${CMAKE_CURRENT_LIST_DIR} -ts fluentui_en_US.ts WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
+    execute_process(COMMAND ${QT_LRELEASE} fluentui_en_US.ts WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
+endif ()
+if (NOT EXISTS ${CMAKE_CURRENT_LIST_DIR}/fluentui_zh_CN.qm)
+    execute_process(COMMAND ${QT_LUPDATE} ${CMAKE_CURRENT_LIST_DIR} -ts fluentui_zh_CN.ts WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
+    execute_process(COMMAND ${QT_LRELEASE} fluentui_zh_CN.ts WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
+endif ()
+
+file(GLOB QM_FILE_PATHS ${CMAKE_CURRENT_LIST_DIR}/ *.qm)
+file(COPY ${QM_FILE_PATHS} DESTINATION "${CMAKE_CURRENT_SOURCE_DIR}/Qt${QT_VERSION_MAJOR}/imports/FluentUI/i18n")
 
 #遍历所有Cpp文件
 file(GLOB_RECURSE CPP_FILES *.cpp *.h)
@@ -57,7 +89,7 @@ if(QT_VERSION VERSION_GREATER_EQUAL "6.2")
     endforeach(filepath)
 
     #遍历所有资源文件
-    file(GLOB_RECURSE RES_PATHS *.png *.jpg *.svg *.ico *.ttf *.webp *.js)
+    file(GLOB_RECURSE RES_PATHS *.png *.jpg *.svg *.ico *.ttf *.webp *.js *.qm)
     foreach(filepath ${RES_PATHS})
         if(${filepath} MATCHES "Qt${QT_VERSION_MAJOR}/")
             string(REPLACE "${CMAKE_CURRENT_SOURCE_DIR}/" "" filename ${filepath})
@@ -88,9 +120,9 @@ endif()
 #如果是Windows平台，则生成rc文件
 set(FLUENTUI_VERSION_RC_PATH "")
 if(WIN32)
-    set(FLUENTUI_VERSION_RC_PATH ${CMAKE_BINARY_DIR}/version_${PROJECT_NAME}.rc)
+    set(FLUENTUI_VERSION_RC_PATH ${CMAKE_CURRENT_BINARY_DIR}/version_${PROJECT_NAME}.rc)
     configure_file(
-        ${FLUENTUI_DIRECTORY}/.cmake/version_dll.rc.in
+        ${CMAKE_CURRENT_SOURCE_DIR}/.cmake/version_dll.rc.in
         ${FLUENTUI_VERSION_RC_PATH}
     )
 endif()
@@ -98,7 +130,7 @@ endif()
 if(QT_VERSION VERSION_GREATER_EQUAL "6.2")
     #如果是Qt6.2版本以上，则使用qt_add_library，qt_add_qml_module函数添加资源文件
     if(FLUENTUI_BUILD_STATIC_LIB)
-        set(FLUENTUI_QML_PLUGIN_DIRECTORY ${CMAKE_BINARY_DIR}/FluentUI)
+        set(FLUENTUI_QML_PLUGIN_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/FluentUI)
     endif()
     qt_add_library(${PROJECT_NAME} ${LIB_TYPE})
     qt_add_qml_module(${PROJECT_NAME}
@@ -114,12 +146,17 @@ if(QT_VERSION VERSION_GREATER_EQUAL "6.2")
         RESOURCE_PREFIX "/qt/qml"
     )
 else()
+    #加快qrc编译
+    set(QRC_FILE Qt5/imports/fluentui.qrc)
+    qt_add_big_resources(QRC_RESOURCES ${QRC_FILE})
+    list(APPEND QRC_RESOURCES ${QRC_FILE})
+    set_property(SOURCE ${QRC_FILE} PROPERTY SKIP_AUTORCC ON)
     #如果是Qt6.2版本以下，则使用add_qmlplugin函数添加资源文件，这是个自定义的函数，详情见.cmake/QmlPlugin.cmake
     include(QmlPlugin)
     add_qmlplugin(${PROJECT_NAME}
         URI "FluentUI"
         VERSION 1.0
-        SOURCES ${sources_files} ${FLUENTUI_VERSION_RC_PATH} Qt5/imports/fluentui.qrc
+        SOURCES ${sources_files} ${FLUENTUI_VERSION_RC_PATH} ${QRC_RESOURCES}
         QMLFILES ${qml_files}
         QMLDIR imports/FluentUI
         BINARY_DIR ${FLUENTUI_QML_PLUGIN_DIRECTORY}

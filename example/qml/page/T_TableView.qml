@@ -8,14 +8,35 @@ import "../component"
 FluContentPage{
 
     id:root
-    title:"TableView"
+    title: qsTr("TableView")
     signal checkBoxChanged
 
     property var dataSource : []
     property int sortType: 0
+    property bool seletedAll: true
+    property string nameKeyword: ""
+
+    onNameKeywordChanged: {
+        table_view.filter(function(item){
+            if(item.name.includes(nameKeyword)){
+                return true
+            }
+            return false
+        })
+    }
 
     Component.onCompleted: {
         loadData(1,1000)
+    }
+
+    onCheckBoxChanged: {
+        for(var i =0;i< table_view.rows ;i++){
+            if(false === table_view.getRow(i).checkbox.options.checked){
+                root.seletedAll = false
+                return
+            }
+        }
+        root.seletedAll = true
     }
 
     onSortTypeChanged: {
@@ -23,9 +44,25 @@ FluContentPage{
         if(sortType === 0){
             table_view.sort()
         }else if(sortType === 1){
-            table_view.sort((a, b) => a.age - b.age);
+            table_view.sort(
+                        (l, r) =>{
+                            var lage = Number(l.age)
+                            var rage = Number(r.age)
+                            if(lage === rage){
+                                return l._key>r._key
+                            }
+                            return lage>rage
+                        });
         }else if(sortType === 2){
-            table_view.sort((a, b) => b.age - a.age);
+            table_view.sort(
+                        (l, r) => {
+                            var lage = Number(l.age)
+                            var rage = Number(r.age)
+                            if(lage === rage){
+                                return l._key>r._key
+                            }
+                            return lage<rage
+                        });
         }
     }
 
@@ -33,8 +70,8 @@ FluContentPage{
         id:custom_update_dialog
         property var text
         property var onAccpetListener
-        title:"修改列名"
-        negativeText:"取消"
+        title: qsTr("Modify the column name")
+        negativeText: qsTr("Cancel")
         contentDelegate: Component{
             Item{
                 implicitWidth: parent.width
@@ -52,7 +89,7 @@ FluContentPage{
                 }
             }
         }
-        positiveText:"确定"
+        positiveText: qsTr("OK")
         onPositiveClicked:{
             if(custom_update_dialog.onAccpetListener){
                 custom_update_dialog.onAccpetListener(custom_update_dialog.text)
@@ -65,6 +102,57 @@ FluContentPage{
         }
     }
 
+    FluMenu{
+        id:pop_filter
+        width: 200
+        height: 89
+
+        contentItem: Item{
+
+            onVisibleChanged: {
+                if(visible){
+                    name_filter_text.text = root.nameKeyword
+                    name_filter_text.cursorPosition = name_filter_text.text.length
+                    name_filter_text.forceActiveFocus()
+                }
+            }
+
+            FluTextBox{
+                id:name_filter_text
+                anchors{
+                    left: parent.left
+                    right: parent.right
+                    top: parent.top
+                    leftMargin: 10
+                    rightMargin: 10
+                    topMargin: 10
+                }
+                iconSource: FluentIcons.Search
+            }
+
+            FluButton{
+                text: qsTr("Search")
+                anchors{
+                    bottom: parent.bottom
+                    right: parent.right
+                    bottomMargin: 10
+                    rightMargin: 10
+                }
+                onClicked: {
+                    root.nameKeyword = name_filter_text.text
+                    pop_filter.close()
+                }
+            }
+
+        }
+
+        function showPopup(){
+            table_view.closeEditor()
+            pop_filter.popup()
+        }
+
+    }
+
     Component{
         id:com_checbox
         Item{
@@ -73,10 +161,42 @@ FluContentPage{
                 checked: true === options.checked
                 enableAnimation: false
                 clickListener: function(){
-                    var obj = tableModel.getRow(row)
+                    var obj = table_view.getRow(row)
                     obj.checkbox = table_view.customItem(com_checbox,{checked:!options.checked})
-                    tableModel.setRow(row,obj)
+                    table_view.setRow(row,obj)
                     checkBoxChanged()
+                }
+            }
+        }
+    }
+
+    Component{
+        id:com_column_filter_name
+        Item{
+            FluText{
+                text: qsTr("Name")
+                anchors.centerIn: parent
+            }
+            FluIconButton{
+                width: 20
+                height: 20
+                iconSize: 12
+                verticalPadding:0
+                horizontalPadding:0
+                iconSource: FluentIcons.Filter
+                iconColor: {
+                    if("" !== root.nameKeyword){
+                        return FluTheme.primaryColor
+                    }
+                    return FluTheme.dark ?  Qt.rgba(1,1,1,1) : Qt.rgba(0,0,0,1)
+                }
+                anchors{
+                    right: parent.right
+                    rightMargin: 3
+                    verticalCenter: parent.verticalCenter
+                }
+                onClicked: {
+                    pop_filter.showPopup()
                 }
             }
         }
@@ -88,20 +208,19 @@ FluContentPage{
             RowLayout{
                 anchors.centerIn: parent
                 FluButton{
-                    text:"删除"
+                    text: qsTr("Delete")
                     onClicked: {
                         table_view.closeEditor()
-                        tableModel.removeRow(row)
-                        checkBoxChanged()
+                        table_view.removeRow(row)
                     }
                 }
                 FluFilledButton{
-                    text:"编辑"
+                    text: qsTr("Edit")
                     onClicked: {
-                        var obj = tableModel.getRow(row)
+                        var obj = table_view.getRow(row)
                         obj.name = "12345"
-                        tableModel.setRow(row,obj)
-                        showSuccess(JSON.stringify(tableModel.getRow(row)))
+                        table_view.setRow(row,obj)
+                        showSuccess(JSON.stringify(obj))
                     }
                 }
             }
@@ -115,33 +234,22 @@ FluContentPage{
             RowLayout{
                 anchors.centerIn: parent
                 FluText{
-                    text:"全选"
+                    text: qsTr("Select All")
                     Layout.alignment: Qt.AlignVCenter
                 }
                 FluCheckBox{
-                    checked: true === options.checked
+                    checked: true === root.seletedAll
                     enableAnimation: false
                     Layout.alignment: Qt.AlignVCenter
                     clickListener: function(){
-                        var checked = !options.checked
+                        root.seletedAll = !root.seletedAll
+                        var checked = root.seletedAll
                         itemModel.display = table_view.customItem(com_column_checbox,{"checked":checked})
-                        for(var i =0;i< tableModel.rowCount ;i++){
-                            var rowData = tableModel.getRow(i)
+                        for(var i =0;i< table_view.rows ;i++){
+                            var rowData = table_view.getRow(i)
                             rowData.checkbox = table_view.customItem(com_checbox,{"checked":checked})
-                            tableModel.setRow(i,rowData)
+                            table_view.setRow(i,rowData)
                         }
-                    }
-                }
-                Connections{
-                    target: root
-                    function onCheckBoxChanged(){
-                        for(var i =0;i< tableModel.rowCount ;i++){
-                            if(false === tableModel.getRow(i).checkbox.options.checked){
-                                itemModel.display = table_view.customItem(com_column_checbox,{"checked":false})
-                                return
-                            }
-                        }
-                        itemModel.display = table_view.customItem(com_column_checbox,{"checked":true})
                     }
                 }
             }
@@ -153,20 +261,20 @@ FluContentPage{
         FluComboBox {
             anchors.fill: parent
             focus: true
-            currentIndex: display
+            editText: display
             editable: true
             model: ListModel {
-                ListElement { text: 100 }
-                ListElement { text: 300 }
-                ListElement { text: 500 }
-                ListElement { text: 1000 }
+                ListElement { text: "100" }
+                ListElement { text: "300" }
+                ListElement { text: "500" }
+                ListElement { text: "1000" }
             }
             Component.onCompleted: {
-                currentIndex=[100,300,500,1000].findIndex((element) => element === Number(display))
+                currentIndex=["100","300","500","1000"].findIndex((element) => element === display)
                 selectAll()
             }
             onCommit: {
-                display = editText
+                editTextChaged(editText)
                 tableView.closeEditor()
             }
         }
@@ -226,7 +334,7 @@ FluContentPage{
         id:com_column_sort_age
         Item{
             FluText{
-                text:"年龄"
+                text: qsTr("Age")
                 anchors.centerIn: parent
             }
             ColumnLayout{
@@ -282,30 +390,92 @@ FluContentPage{
         }
     }
 
+    FluArea{
+        id:layout_controls
+        anchors{
+            left: parent.left
+            right: parent.right
+            top: parent.top
+            topMargin: 20
+        }
+        height: 60
+
+        Row{
+            spacing: 5
+            anchors{
+                left: parent.left
+                leftMargin: 10
+                verticalCenter: parent.verticalCenter
+            }
+
+            FluButton{
+                text: qsTr("Clear All")
+                onClicked: {
+                    table_view.dataSource = []
+                }
+            }
+
+            FluButton{
+                text: qsTr("Delete Selection")
+                onClicked: {
+                    var data = []
+                    var rows = []
+                    for (var i = 0; i < table_view.rows; i++) {
+                        var item = table_view.getRow(i);
+                        rows.push(item)
+                        if (!item.checkbox.options.checked) {
+                            data.push(item);
+                        }
+                    }
+                    var sourceModel = table_view.sourceModel;
+                    for (i = 0; i < sourceModel.rowCount; i++) {
+                        var sourceItem = sourceModel.getRow(i);
+                        const foundItem = rows.find(item=> item._key === sourceItem._key)
+                        if (!foundItem) {
+                            data.push(sourceItem);
+                        }
+                    }
+                    table_view.dataSource = data
+                }
+            }
+
+            FluButton{
+                text: qsTr("Add a row of Data")
+                onClicked: {
+                    table_view.appendRow(genTestObject())
+                }
+            }
+
+        }
+    }
+
     FluTableView{
         id:table_view
         anchors{
             left: parent.left
             right: parent.right
-            top: parent.top
+            top: layout_controls.bottom
             bottom: gagination.top
         }
-        anchors.topMargin: 20
+        anchors.topMargin: 5
+        onRowsChanged: {
+            root.checkBoxChanged()
+        }
         columnSource:[
             {
                 title: table_view.customItem(com_column_checbox,{checked:true}),
                 dataIndex: 'checkbox',
-                width:80,
-                minimumWidth:80,
-                maximumWidth:80
+                width:100,
+                minimumWidth:100,
+                maximumWidth:100
             },
             {
-                title: table_view.customItem(com_column_update_title,{title:'头像'}),
+                title: table_view.customItem(com_column_update_title,{title:qsTr("Avatar")}),
                 dataIndex: 'avatar',
                 width:100
             },
             {
-                title: '姓名',
+                title: table_view.customItem(com_column_filter_name,{title:qsTr("Name")}),
                 dataIndex: 'name',
                 readOnly:true
             },
@@ -318,28 +488,29 @@ FluContentPage{
                 maximumWidth:100
             },
             {
-                title: '住址',
+                title: qsTr("Address"),
                 dataIndex: 'address',
                 width:200,
                 minimumWidth:100,
                 maximumWidth:250
             },
             {
-                title: '别名',
+                title: qsTr("Nickname"),
                 dataIndex: 'nickname',
                 width:100,
                 minimumWidth:80,
                 maximumWidth:200
             },
             {
-                title: '长字符串',
+                title: qsTr("Long String"),
                 dataIndex: 'longstring',
                 width:200,
                 minimumWidth:100,
-                maximumWidth:300
+                maximumWidth:300,
+                editMultiline: true
             },
             {
-                title: '操作',
+                title: qsTr("Options"),
                 dataIndex: 'action',
                 width:160,
                 minimumWidth:160,
@@ -358,6 +529,8 @@ FluContentPage{
         itemCount: 100000
         pageButtonCount: 7
         __itemPerPage: 1000
+        previousText: qsTr("<Previous")
+        nextText: qsTr("Next>")
         onRequestPage:
             (page,count)=> {
                 table_view.closeEditor()
@@ -366,11 +539,11 @@ FluContentPage{
             }
     }
 
-    function loadData(page,count){
-        var numbers = [100, 300, 500, 1000];
+    function genTestObject(){
+        var ages = ["100", "300", "500", "1000"];
         function getRandomAge() {
-            var randomIndex = Math.floor(Math.random() * numbers.length);
-            return numbers[randomIndex];
+            var randomIndex = Math.floor(Math.random() * ages.length);
+            return ages[randomIndex];
         }
         var names = ["孙悟空", "猪八戒", "沙和尚", "唐僧","白骨夫人","金角大王","熊山君","黄风怪","银角大王"];
         function getRandomName(){
@@ -387,26 +560,29 @@ FluContentPage{
             var randomIndex = Math.floor(Math.random() * addresses.length);
             return addresses[randomIndex];
         }
-
         var avatars = ["qrc:/example/res/svg/avatar_1.svg", "qrc:/example/res/svg/avatar_2.svg", "qrc:/example/res/svg/avatar_3.svg", "qrc:/example/res/svg/avatar_4.svg","qrc:/example/res/svg/avatar_5.svg","qrc:/example/res/svg/avatar_6.svg","qrc:/example/res/svg/avatar_7.svg","qrc:/example/res/svg/avatar_8.svg","qrc:/example/res/svg/avatar_9.svg","qrc:/example/res/svg/avatar_10.svg","qrc:/example/res/svg/avatar_11.svg","qrc:/example/res/svg/avatar_12.svg"];
         function getAvatar(){
             var randomIndex = Math.floor(Math.random() * avatars.length);
             return avatars[randomIndex];
         }
-
+        return {
+            checkbox: table_view.customItem(com_checbox,{checked:root.seletedAll}),
+            avatar:table_view.customItem(com_avatar,{avatar:getAvatar()}),
+            name: getRandomName(),
+            age:getRandomAge(),
+            address: getRandomAddresses(),
+            nickname: getRandomNickname(),
+            longstring:"你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好",
+            action: table_view.customItem(com_action),
+            _minimumHeight:50,
+            _key:FluTools.uuid()
+        }
+    }
+    function loadData(page,count){
+        root.seletedAll = true
         const dataSource = []
         for(var i=0;i<count;i++){
-            dataSource.push({
-                                checkbox: table_view.customItem(com_checbox,{checked:true}),
-                                avatar:table_view.customItem(com_avatar,{avatar:getAvatar()}),
-                                name: getRandomName(),
-                                age:getRandomAge(),
-                                address: getRandomAddresses(),
-                                nickname: getRandomNickname(),
-                                longstring:"你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好",
-                                action: table_view.customItem(com_action),
-                                minimumHeight:50
-                            })
+            dataSource.push(genTestObject())
         }
         root.dataSource = dataSource
         table_view.dataSource = root.dataSource

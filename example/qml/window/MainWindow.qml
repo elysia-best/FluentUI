@@ -2,6 +2,7 @@ import QtQuick 2.15
 import QtQuick.Window 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
+import QtQml 2.15
 import Qt.labs.platform 1.1
 import FluentUI 1.0
 import example 1.0
@@ -13,15 +14,15 @@ FluWindow {
 
     id:window
     title: "FluentUI"
-    width: 960
-    height: 600
+    width: 1000
+    height: 680
     minimumWidth: 520
     minimumHeight: 200
     launchMode: FluWindowType.SingleTask
     fitsAppBarWindows: true
     appBar: FluAppBar {
+        width: window.width
         height: 30
-        darkText: Lang.dark_mode
         showDark: true
         darkClickListener:(button)=>handleDarkChanged(button)
         closeClickListener: ()=>{dialog_close.open()}
@@ -85,7 +86,7 @@ FluWindow {
     }
 
     Timer{
-        id:timer_window_hide_delay
+        id: timer_window_hide_delay
         interval: 150
         onTriggered: {
             window.hide()
@@ -93,30 +94,29 @@ FluWindow {
     }
 
     FluContentDialog{
-        id:dialog_close
-        title:"退出"
-        message:"确定要退出程序吗？"
-        negativeText:"最小化"
+        id: dialog_close
+        title: qsTr("Quit")
+        message: qsTr("Are you sure you want to exit the program?")
+        negativeText: qsTr("Minimize")
         buttonFlags: FluContentDialogType.NegativeButton | FluContentDialogType.NeutralButton | FluContentDialogType.PositiveButton
         onNegativeClicked: {
-            system_tray.showMessage("友情提示","FluentUI已隐藏至托盘,点击托盘可再次激活窗口");
+            system_tray.showMessage(qsTr("Friendly Reminder"),qsTr("FluentUI is hidden from the tray, click on the tray to activate the window again"));
             timer_window_hide_delay.restart()
         }
-        positiveText:"退出"
-        neutralText:"取消"
+        positiveText: qsTr("Quit")
+        neutralText: qsTr("Cancel")
         onPositiveClicked:{
             FluApp.exit(0)
         }
     }
 
     Component{
-        id:nav_item_right_menu
+        id: nav_item_right_menu
         FluMenu{
-            id:menu
-            width: 130
+            width: 186
             FluMenuItem{
-                text: "在独立窗口打开"
-                visible: true
+                text: qsTr("Open in Separate Window")
+                font.pixelSize: 12
                 onClicked: {
                     FluApp.navigate("/pageWindow",{title:modelData.title,url:modelData.url})
                 }
@@ -174,6 +174,9 @@ FluWindow {
                         loader.reload()
                     }
                 }
+                Component.onCompleted: {
+                    appBar.setHitTestVisible(layout_back_buttons)
+                }
             }
             FluRemoteLoader{
                 id:loader
@@ -209,7 +212,7 @@ FluWindow {
                 title:"FluentUI"
                 onLogoClicked:{
                     clickCount += 1
-                    showSuccess("点击%1次".arg(clickCount))
+                    showSuccess("%1:%2".arg(qsTr("Click Time")).arg(clickCount))
                     if(clickCount === 5){
                         loader.reload()
                         flipable.flipped = true
@@ -219,7 +222,7 @@ FluWindow {
                 autoSuggestBox:FluAutoSuggestBox{
                     iconSource: FluentIcons.Search
                     items: ItemsOriginal.getSearchData()
-                    placeholderText: Lang.search
+                    placeholderText: qsTr("Search")
                     onItemClicked:
                         (data)=>{
                             ItemsOriginal.startPageByItem(data)
@@ -230,6 +233,9 @@ FluWindow {
                     ItemsOriginal.paneItemMenu = nav_item_right_menu
                     ItemsFooter.navigationView = nav_view
                     ItemsFooter.paneItemMenu = nav_item_right_menu
+                    appBar.setHitTestVisible(nav_view.buttonMenu)
+                    appBar.setHitTestVisible(nav_view.buttonBack)
+                    appBar.setHitTestVisible(nav_view.imageLogo)
                     setCurrentIndex(0)
                 }
             }
@@ -237,10 +243,10 @@ FluWindow {
     }
 
     Component{
-        id:com_reveal
+        id: com_reveal
         CircularReveal{
-            id:reveal
-            target:window.layoutContainer()
+            id: reveal
+            target: window.contentItem
             anchors.fill: parent
             onAnimationFinished:{
                 //动画结束后释放资源
@@ -269,7 +275,7 @@ FluWindow {
                 return
             }
             loader_reveal.sourceComponent = com_reveal
-            var target = window.layoutContainer()
+            var target = window.contentItem
             var pos = button.mapToItem(target,0,0)
             var mouseX = pos.x
             var mouseY = pos.y
@@ -306,13 +312,16 @@ FluWindow {
     }
 
     FluTour{
-        id:tour
+        id: tour
+        finishText: qsTr("Finish")
+        nextText: qsTr("Next")
+        previousText: qsTr("Previous")
         steps:{
             var data = []
             if(!window.useSystemAppBar){
-                data.push({title:"夜间模式",description: "这里可以切换夜间模式.",target:()=>appBar.darkButton()})
+                data.push({title:qsTr("Dark Mode"),description: qsTr("Here you can switch to night mode."),target:()=>appBar.buttonDark})
             }
-            data.push({title:"隐藏彩蛋",description: "多点几下试试！！",target:()=>nav_view.logoButton()})
+            data.push({title:qsTr("Hide Easter eggs"),description: qsTr("Try a few more clicks!!"),target:()=>nav_view.imageLogo})
             return data
         }
     }
@@ -322,7 +331,7 @@ FluWindow {
     }
 
     FluText{
-        text:"fps %1".arg(fps_item.fps)
+        text: "fps %1".arg(fps_item.fps)
         opacity: 0.3
         anchors{
             bottom: parent.bottom
@@ -335,12 +344,12 @@ FluWindow {
     FluContentDialog{
         property string newVerson
         property string body
-        id:dialog_update
-        title:"升级提示"
-        message:"FluentUI目前最新版本 "+ newVerson +" -- 当前应用版本 "+AppInfo.version+" \n现在是否去下载新版本？\n\n更新内容：\n"+body
+        id: dialog_update
+        title: qsTr("Upgrade Tips")
+        message:qsTr("FluentUI is currently up to date ")+ newVerson +qsTr(" -- The current app version") +AppInfo.version+qsTr(" \nNow go and download the new version？\n\nUpdated content: \n")+body
         buttonFlags: FluContentDialogType.NegativeButton | FluContentDialogType.PositiveButton
-        negativeText: "取消"
-        positiveText:"确定"
+        negativeText: qsTr("Cancel")
+        positiveText: qsTr("OK")
         onPositiveClicked:{
             Qt.openUrlExternally("https://github.com/zhuzichu520/FluentUI/releases/latest")
         }
@@ -367,14 +376,14 @@ FluWindow {
                     dialog_update.open()
                 }else{
                     if(!silent){
-                        showInfo("当前版本已经是最新版")
+                        showInfo(qsTr("The current version is already the latest"))
                     }
                 }
             }
         onError:
             (status,errorString)=>{
                 if(!silent){
-                    showError("网络异常!")
+                    showError(qsTr("The network is abnormal"))
                 }
                 console.debug(status+";"+errorString)
             }
@@ -385,5 +394,4 @@ FluWindow {
         FluNetwork.get("https://api.github.com/repos/zhuzichu520/FluentUI/releases/latest")
         .go(callable)
     }
-
 }

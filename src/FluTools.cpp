@@ -25,7 +25,7 @@ void FluTools::clipText(const QString& text){
 }
 
 QString FluTools::uuid(){
-    return QUuid::createUuid().toString();
+    return QUuid::createUuid().toString().remove('-').remove('{').remove('}');
 }
 
 QString FluTools::readFile(const QString &fileName){
@@ -241,6 +241,6 @@ bool FluTools::isWindows10OrGreater(){
     }
 }
 
-int FluTools::getTaskBarHeight(QQuickWindow* window){
-    return window->screen()->geometry().height() - window->screen()->availableGeometry().height();
+QRect FluTools::desktopAvailableGeometry(QQuickWindow* window){
+    return window->screen()->availableGeometry();
 }

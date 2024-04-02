@@ -21,12 +21,19 @@ Item {
         }
     }
 
+    Connections{
+        target: TranslateHelper
+        function onCurrentChanged(){
+            SettingsHelper.saveLanguage(TranslateHelper.current)
+        }
+    }
+
     Component.onCompleted: {
         FluNetwork.openLog = false
         FluNetwork.setInterceptor(function(param){
             param.addHeader("Token","000000000000000000000")
         })
-        FluApp.init(app)
+        FluApp.init(app,Qt.locale(TranslateHelper.current))
         FluApp.windowIcon = "qrc:/example/res/image/favicon.ico"
         FluApp.useSystemAppBar = SettingsHelper.getUseSystemAppBar()
         FluTheme.darkMode = SettingsHelper.getDarkMode()

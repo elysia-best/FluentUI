@@ -5,10 +5,12 @@ import QtQuick.Window
 import FluentUI
 
 Popup {
-    id: popup
+    id: control
     padding: 0
     modal:true
-    anchors.centerIn: Overlay.overlay
+    parent: Overlay.overlay
+    x: Math.round((d.parentWidth - width) / 2)
+    y: Math.round((d.parentHeight - height) / 2)
     closePolicy: Popup.CloseOnEscape
     enter: Transition {
         NumberAnimation {
@@ -18,6 +20,7 @@ Popup {
             to:1
         }
     }
+    height:Math.min(implicitHeight,d.parentHeight)
     exit:Transition {
         NumberAnimation {
             property: "opacity"
@@ -31,6 +34,21 @@ Popup {
         color: FluTheme.dark ? Qt.rgba(43/255,43/255,43/255,1) : Qt.rgba(1,1,1,1)
         FluShadow{
             radius: 5
+        }
+    }
+    QtObject{
+        id:d
+        property int parentHeight: {
+            if(control.parent){
+                return control.parent.height
+            }
+            return control.height
+        }
+        property int parentWidth: {
+            if(control.parent){
+                return control.parent.width
+            }
+            return control.width
         }
     }
 }
