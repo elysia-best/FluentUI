@@ -18,6 +18,20 @@ set(FLUENTUI_BUILD_STATIC_LIB OFF)
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core)
 
+set(QT_SDK_DIR "${Qt${QT_VERSION_MAJOR}_DIR}")
+cmake_path(GET QT_SDK_DIR PARENT_PATH QT_SDK_DIR)
+cmake_path(GET QT_SDK_DIR PARENT_PATH QT_SDK_DIR)
+cmake_path(GET QT_SDK_DIR PARENT_PATH QT_SDK_DIR)
+
+
+set(FLUENTUI_QML_PLUGIN_DIRECTORY ${CMAKE_BINARY_DIR}/install/qml/FluentUI)
+
+# #设置QML插件输出目录，可以通过外部设置，如果外部没有设置就默认到<QT_SDK_DIR_PATH>\qml\FluentUI目录下
+# set(FLUENTUI_QML_PLUGIN_DIRECTORY "" CACHE PATH "Path to FluentUI plugin")
+# if(NOT FLUENTUI_QML_PLUGIN_DIRECTORY)
+#     set(FLUENTUI_QML_PLUGIN_DIRECTORY ${QT_SDK_DIR}/qml/FluentUI)
+# endif()
+
 add_subdirectory(src)
 
 #Release也支持日志打印代码位置
