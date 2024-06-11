@@ -168,7 +168,7 @@ Item {
                 return  control.cellHeight
             }
             Behavior on height {
-                enabled: FluTheme.enableAnimation && d.animDisabled
+                enabled: FluTheme.animationEnabled && d.animDisabled
                 NumberAnimation{
                     duration: 83
                 }
@@ -311,7 +311,7 @@ Item {
                             return true
                         }
                         Behavior on rotation {
-                            enabled: FluTheme.enableAnimation && d.animDisabled
+                            enabled: FluTheme.animationEnabled && d.animDisabled
                             NumberAnimation{
                                 duration: 167
                                 easing.type: Easing.OutCubic
@@ -458,7 +458,7 @@ Item {
         id:com_panel_item
         Item{
             Behavior on height {
-                enabled: FluTheme.enableAnimation && d.animDisabled
+                enabled: FluTheme.animationEnabled && d.animDisabled
                 NumberAnimation{
                     duration: 167
                     easing.type: Easing.OutCubic
@@ -772,13 +772,13 @@ Item {
                 visible: opacity
                 opacity: d.isMinimal
                 Behavior on opacity{
-                    enabled: FluTheme.enableAnimation && d.animDisabled
+                    enabled: FluTheme.animationEnabled && d.animDisabled
                     NumberAnimation{
                         duration: 83
                     }
                 }
                 Behavior on Layout.preferredWidth {
-                    enabled: FluTheme.enableAnimation && d.animDisabled
+                    enabled: FluTheme.animationEnabled && d.animDisabled
                     NumberAnimation{
                         duration: 167
                         easing.type: Easing.OutCubic
@@ -881,7 +881,7 @@ Item {
             }
         }
         Behavior on anchors.leftMargin {
-            enabled: FluTheme.enableAnimation && d.animDisabled
+            enabled: FluTheme.animationEnabled && d.animDisabled
             NumberAnimation{
                 duration: 167
                 easing.type: Easing.OutCubic
@@ -926,14 +926,14 @@ Item {
         }
         x: visible ? 0 : -width
         Behavior on width {
-            enabled: FluTheme.enableAnimation && d.animDisabled
+            enabled: FluTheme.animationEnabled && d.animDisabled
             NumberAnimation{
                 duration: 167
                 easing.type: Easing.OutCubic
             }
         }
         Behavior on x {
-            enabled: FluTheme.enableAnimation && d.animDisabled
+            enabled: FluTheme.animationEnabled && d.animDisabled
             NumberAnimation{
                 duration: 167
                 easing.type: Easing.OutCubic
@@ -1013,7 +1013,7 @@ Item {
                 interactive: false
                 model:d.handleItems()
                 boundsBehavior: ListView.StopAtBounds
-                highlightMoveDuration: FluTheme.enableAnimation && d.animDisabled ? 167 : 0
+                highlightMoveDuration: FluTheme.animationEnabled && d.animDisabled ? 167 : 0
                 highlight: Item{
                     clip: true
                     Rectangle{
@@ -1121,7 +1121,8 @@ Item {
         }
         padding: 0
         focus: true
-        contentItem: Item{
+        contentItem: FluClip{
+            radius: [5,5,5,5]
             ListView{
                 id:list_view
                 anchors.fill: parent
@@ -1146,7 +1147,6 @@ Item {
                             visible: item_button.activeFocus
                             radius:4
                         }
-
                         FluLoader{
                             id:item_dot_loader
                             anchors{
@@ -1161,7 +1161,6 @@ Item {
                                 return undefined
                             }
                         }
-
                     }
                     contentItem: FluText{
                         text:modelData.title
@@ -1188,13 +1187,13 @@ Item {
                 }
             }
         }
-        background: FluRectangle{
+        background: Rectangle{
             implicitWidth: 180
-            radius: [4,4,4,4]
-            FluShadow{
-                radius: 4
-            }
-            color: FluTheme.dark ? Qt.rgba(51/255,48/255,48/255,1) : Qt.rgba(248/255,250/255,253/255,1)
+            color:FluTheme.dark ? Qt.rgba(45/255,45/255,45/255,1) : Qt.rgba(252/255,252/255,252/255,1)
+            border.color: FluTheme.dark ? Qt.rgba(26/255,26/255,26/255,1) : Qt.rgba(191/255,191/255,191/255,1)
+            border.width: 1
+            radius: 5
+            FluShadow{}
         }
         function showPopup(pos,height,model){
             background.implicitHeight = height
@@ -1232,10 +1231,14 @@ Item {
         }
     }
     function setCurrentIndex(index){
-        nav_list.currentIndex = index
         var item = nav_list.model[index]
-        if(item instanceof FluPaneItem){
-            item.tap()
+        if(item.url){
+            nav_list.currentIndex = index
+            if(item instanceof FluPaneItem){
+                item.tap()
+            }
+        }else{
+            item.onTapListener()
         }
     }
     function getItems(){

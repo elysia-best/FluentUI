@@ -14,7 +14,7 @@ Rectangle{
     property string closeText : qsTr("Close")
     property string stayTopText : qsTr("Sticky on Top")
     property string stayTopCancelText : qsTr("Sticky on Top cancelled")
-    property color textColor: FluTheme.dark ? "#FFFFFF" : "#000000"
+    property color textColor: FluTheme.fontPrimaryColor
     property color minimizeNormalColor: FluTheme.itemNormalColor
     property color minimizeHoverColor: FluTheme.itemHoverColor
     property color minimizePressColor: FluTheme.itemPressColor
@@ -22,7 +22,7 @@ Rectangle{
     property color maximizeHoverColor: FluTheme.itemHoverColor
     property color maximizePressColor: FluTheme.itemPressColor
     property color closeNormalColor: Qt.rgba(0,0,0,0)
-    property color closeHoverColor:  Qt.rgba(251/255,115/255,115/255,1)
+    property color closeHoverColor: Qt.rgba(251/255,115/255,115/255,1)
     property color closePressColor: Qt.rgba(251/255,115/255,115/255,0.8)
     property bool showDark: false
     property bool showClose: true
@@ -34,7 +34,13 @@ Rectangle{
     property int iconSize: 20
     property bool isMac: FluTools.isMacos()
     property color borerlessColor : FluTheme.primaryColor
-    property bool systemMoveEnable: true
+    property alias buttonStayTop: btn_stay_top
+    property alias buttonMinimize: btn_minimize
+    property alias buttonMaximize: btn_maximize
+    property alias buttonClose: btn_close
+    property alias buttonDark: btn_dark
+    property alias layoutMacosButtons: layout_macos_buttons
+    property alias layoutStandardbuttons: layout_standard_buttons
     property var maxClickListener : function(){
         if(FluTools.isMacos()){
             if (d.win.visibility === Window.FullScreen)
@@ -71,16 +77,6 @@ Rectangle{
             FluTheme.darkMode = FluThemeType.Dark
         }
     }
-    property var systemMenuListener: function(){
-        if(d.win instanceof FluWindow){
-            d.win.showSystemMenu()
-        }
-    }
-    property alias buttonStayTop: btn_stay_top
-    property alias buttonMinimize: btn_minimize
-    property alias buttonMaximize: btn_maximize
-    property alias buttonClose: btn_close
-    property alias buttonDark: btn_dark
     id:control
     color: Qt.rgba(0,0,0,0)
     height: visible ? 30 : 0
@@ -108,29 +104,6 @@ Rectangle{
             return false
         }
     }
-    MouseArea{
-        id:mouse_app_bar
-        anchors.fill: parent
-        onPositionChanged:
-            (mouse)=>{
-                if(systemMoveEnable){
-                    d.win.startSystemMove()
-                }
-            }
-        onDoubleClicked:
-            (mouse)=>{
-                if(systemMoveEnable && d.resizable && Qt.LeftButton){
-                    btn_maximize.clicked()
-                }
-            }
-        acceptedButtons: Qt.LeftButton|Qt.RightButton
-        onClicked:
-            (mouse)=>{
-                if (systemMoveEnable && mouse.button === Qt.RightButton){
-                    control.systemMenuListener()
-                }
-            }
-    }
     Row{
         anchors{
             verticalCenter: parent.verticalCenter
@@ -153,9 +126,8 @@ Rectangle{
             anchors.verticalCenter: parent.verticalCenter
         }
     }
-
     Component{
-        id:com_mac_buttons
+        id:com_macos_buttons
         RowLayout{
             FluImageButton{
                 Layout.preferredHeight: 12
@@ -186,24 +158,11 @@ Rectangle{
             }
         }
     }
-
-    FluLoader{
-        anchors{
-            verticalCenter: parent.verticalCenter
-            left: parent.left
-            leftMargin: 10
-        }
-        sourceComponent: isMac ? com_mac_buttons : undefined
-    }
-
     RowLayout{
-        id:layout_row
+        id:layout_standard_buttons
+        height: parent.height
         anchors.right: parent.right
-        height: control.height
         spacing: 0
-        Component.onCompleted: {
-            setHitTestVisible(layout_row)
-        }
         FluIconButton{
             id:btn_dark
             Layout.preferredWidth: 40
@@ -266,6 +225,7 @@ Rectangle{
         }
         FluIconButton{
             id:btn_maximize
+            property bool hover: btn_maximize.hovered
             Layout.preferredWidth: 40
             Layout.preferredHeight: 30
             padding: 0
@@ -276,10 +236,7 @@ Rectangle{
                 if(down){
                     return maximizePressColor
                 }
-                if(FluTools.isWindows11OrGreater()){
-                    return d.hoverMaxBtn ? maximizeHoverColor : maximizeNormalColor
-                }
-                return hovered ? maximizeHoverColor : maximizeNormalColor
+                return btn_maximize.hover ? maximizeHoverColor : maximizeNormalColor
             }
             Layout.alignment: Qt.AlignVCenter
             visible: d.resizable && !isMac && showMaximize
@@ -312,36 +269,13 @@ Rectangle{
             onClicked: closeClickListener()
         }
     }
-    function _maximizeButtonHover(){
-        var hover = false
-        if(btn_maximize.visible && FluTools.isWindows11OrGreater() && d.resizable){
-            if(d.containsPointToItem(FluTools.cursorPos(),btn_maximize)){
-                hover = true
-            }else{
-                if(btn_maximize.down){
-                    btn_maximize.down = false
-                }
-            }
+    FluLoader{
+        id:layout_macos_buttons
+        anchors{
+            verticalCenter: parent.verticalCenter
+            left: parent.left
+            leftMargin: 10
         }
-        d.hoverMaxBtn = hover
-        return hover;
-    }
-    function _appBarHover(){
-        var cursorPos = FluTools.cursorPos()
-        for(var i =0 ;i< d.hitTestList.length; i++){
-            var item = d.hitTestList[i]
-            if(item.visible){
-                if(d.containsPointToItem(cursorPos,item)){
-                    return false
-                }
-            }
-        }
-        if(d.containsPointToItem(cursorPos,control)){
-            return true
-        }
-        return false
-    }
-    function setHitTestVisible(id){
-        d.hitTestList.push(id)
+        sourceComponent: isMac ? com_macos_buttons : undefined
     }
 }

@@ -64,9 +64,60 @@
 <context>
     <name>FluCalendarPicker</name>
     <message>
-        <location filename="Qt5/imports/FluentUI/Controls/FluCalendarPicker.qml" line="12"/>
-        <location filename="Qt6/imports/FluentUI/Controls/FluCalendarPicker.qml" line="11"/>
+        <location filename="Qt5/imports/FluentUI/Controls/FluCalendarPicker.qml" line="13"/>
+        <location filename="Qt6/imports/FluentUI/Controls/FluCalendarPicker.qml" line="12"/>
         <source>Pick a date</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>FluColorPicker</name>
+    <message>
+        <location filename="Qt5/imports/FluentUI/Controls/FluColorPicker.qml" line="16"/>
+        <location filename="Qt6/imports/FluentUI/Controls/FluColorPicker.qml" line="17"/>
+        <source>Cancel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Qt5/imports/FluentUI/Controls/FluColorPicker.qml" line="17"/>
+        <location filename="Qt6/imports/FluentUI/Controls/FluColorPicker.qml" line="18"/>
+        <source>OK</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Qt5/imports/FluentUI/Controls/FluColorPicker.qml" line="18"/>
+        <location filename="Qt6/imports/FluentUI/Controls/FluColorPicker.qml" line="19"/>
+        <source>Color Picker</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Qt5/imports/FluentUI/Controls/FluColorPicker.qml" line="19"/>
+        <location filename="Qt6/imports/FluentUI/Controls/FluColorPicker.qml" line="20"/>
+        <source>Edit Color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Qt5/imports/FluentUI/Controls/FluColorPicker.qml" line="20"/>
+        <location filename="Qt6/imports/FluentUI/Controls/FluColorPicker.qml" line="21"/>
+        <source>Red</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Qt5/imports/FluentUI/Controls/FluColorPicker.qml" line="21"/>
+        <location filename="Qt6/imports/FluentUI/Controls/FluColorPicker.qml" line="22"/>
+        <source>Green</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Qt5/imports/FluentUI/Controls/FluColorPicker.qml" line="22"/>
+        <location filename="Qt6/imports/FluentUI/Controls/FluColorPicker.qml" line="23"/>
+        <source>Blue</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Qt5/imports/FluentUI/Controls/FluColorPicker.qml" line="23"/>
+        <location filename="Qt6/imports/FluentUI/Controls/FluColorPicker.qml" line="24"/>
+        <source>Opacity</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -94,32 +145,32 @@
 <context>
     <name>FluDatePicker</name>
     <message>
+        <location filename="Qt5/imports/FluentUI/Controls/FluDatePicker.qml" line="10"/>
+        <location filename="Qt6/imports/FluentUI/Controls/FluDatePicker.qml" line="10"/>
+        <source>Year</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Qt5/imports/FluentUI/Controls/FluDatePicker.qml" line="11"/>
+        <location filename="Qt6/imports/FluentUI/Controls/FluDatePicker.qml" line="11"/>
+        <source>Month</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Qt5/imports/FluentUI/Controls/FluDatePicker.qml" line="12"/>
+        <location filename="Qt6/imports/FluentUI/Controls/FluDatePicker.qml" line="12"/>
+        <source>Day</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="Qt5/imports/FluentUI/Controls/FluDatePicker.qml" line="13"/>
         <location filename="Qt6/imports/FluentUI/Controls/FluDatePicker.qml" line="13"/>
-        <source>Year</source>
+        <source>Cancel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="Qt5/imports/FluentUI/Controls/FluDatePicker.qml" line="14"/>
         <location filename="Qt6/imports/FluentUI/Controls/FluDatePicker.qml" line="14"/>
-        <source>Month</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="Qt5/imports/FluentUI/Controls/FluDatePicker.qml" line="15"/>
-        <location filename="Qt6/imports/FluentUI/Controls/FluDatePicker.qml" line="15"/>
-        <source>Day</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="Qt5/imports/FluentUI/Controls/FluDatePicker.qml" line="16"/>
-        <location filename="Qt6/imports/FluentUI/Controls/FluDatePicker.qml" line="16"/>
-        <source>Cancel</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="Qt5/imports/FluentUI/Controls/FluDatePicker.qml" line="17"/>
-        <location filename="Qt6/imports/FluentUI/Controls/FluDatePicker.qml" line="17"/>
         <source>OK</source>
         <translation type="unfinished"></translation>
     </message>
@@ -136,14 +187,14 @@
 <context>
     <name>FluPagination</name>
     <message>
-        <location filename="Qt5/imports/FluentUI/Controls/FluPagination.qml" line="8"/>
-        <location filename="Qt6/imports/FluentUI/Controls/FluPagination.qml" line="8"/>
+        <location filename="Qt5/imports/FluentUI/Controls/FluPagination.qml" line="10"/>
+        <location filename="Qt6/imports/FluentUI/Controls/FluPagination.qml" line="9"/>
         <source>&lt;Previous</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Qt5/imports/FluentUI/Controls/FluPagination.qml" line="9"/>
-        <location filename="Qt6/imports/FluentUI/Controls/FluPagination.qml" line="9"/>
+        <location filename="Qt5/imports/FluentUI/Controls/FluPagination.qml" line="11"/>
+        <location filename="Qt6/imports/FluentUI/Controls/FluPagination.qml" line="10"/>
         <source>Next&gt;</source>
         <translation type="unfinished"></translation>
     </message>
@@ -180,6 +231,38 @@
         <source>Reset</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <location filename="Qt6/imports/FluentUI/Controls/FluShortcutPicker.qml" line="205"/>
+        <source>Conflict</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>FluStatusLayout</name>
+    <message>
+        <location filename="Qt5/imports/FluentUI/Controls/FluStatusLayout.qml" line="11"/>
+        <location filename="Qt6/imports/FluentUI/Controls/FluStatusLayout.qml" line="10"/>
+        <source>Loading...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Qt5/imports/FluentUI/Controls/FluStatusLayout.qml" line="12"/>
+        <location filename="Qt6/imports/FluentUI/Controls/FluStatusLayout.qml" line="11"/>
+        <source>Empty</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Qt5/imports/FluentUI/Controls/FluStatusLayout.qml" line="13"/>
+        <location filename="Qt6/imports/FluentUI/Controls/FluStatusLayout.qml" line="12"/>
+        <source>Error</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Qt5/imports/FluentUI/Controls/FluStatusLayout.qml" line="14"/>
+        <location filename="Qt6/imports/FluentUI/Controls/FluStatusLayout.qml" line="13"/>
+        <source>Reload</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>FluTextBoxMenu</name>
@@ -209,6 +292,45 @@
     </message>
 </context>
 <context>
+    <name>FluTimePicker</name>
+    <message>
+        <location filename="Qt5/imports/FluentUI/Controls/FluTimePicker.qml" line="11"/>
+        <location filename="Qt6/imports/FluentUI/Controls/FluTimePicker.qml" line="11"/>
+        <source>AM</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Qt5/imports/FluentUI/Controls/FluTimePicker.qml" line="12"/>
+        <location filename="Qt6/imports/FluentUI/Controls/FluTimePicker.qml" line="12"/>
+        <source>PM</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Qt5/imports/FluentUI/Controls/FluTimePicker.qml" line="13"/>
+        <location filename="Qt6/imports/FluentUI/Controls/FluTimePicker.qml" line="13"/>
+        <source>Hour</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Qt5/imports/FluentUI/Controls/FluTimePicker.qml" line="14"/>
+        <location filename="Qt6/imports/FluentUI/Controls/FluTimePicker.qml" line="14"/>
+        <source>Minute</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Qt5/imports/FluentUI/Controls/FluTimePicker.qml" line="15"/>
+        <location filename="Qt6/imports/FluentUI/Controls/FluTimePicker.qml" line="15"/>
+        <source>Cancel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Qt5/imports/FluentUI/Controls/FluTimePicker.qml" line="16"/>
+        <location filename="Qt6/imports/FluentUI/Controls/FluTimePicker.qml" line="16"/>
+        <source>OK</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>FluTour</name>
     <message>
         <location filename="Qt5/imports/FluentUI/Controls/FluTour.qml" line="13"/>
@@ -232,9 +354,22 @@
 <context>
     <name>FluWindow</name>
     <message>
-        <location filename="Qt5/imports/FluentUI/Controls/FluWindow.qml" line="269"/>
-        <location filename="Qt6/imports/FluentUI/Controls/FluWindow.qml" line="268"/>
+        <location filename="Qt5/imports/FluentUI/Controls/FluWindow.qml" line="347"/>
+        <location filename="Qt6/imports/FluentUI/Controls/FluWindow.qml" line="346"/>
         <source>Loading...</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>QHotkey</name>
+    <message>
+        <location filename="qhotkey/qhotkey.cpp" line="294"/>
+        <source>Failed to register %1. Error: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qhotkey/qhotkey.cpp" line="314"/>
+        <source>Failed to unregister %1. Error: %2</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

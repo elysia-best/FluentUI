@@ -44,7 +44,6 @@ FluScrollablePage{
             wrapMode: Text.WrapAnywhere
             horizontalAlignment: isRight ? Qt.AlignRight : Qt.AlignLeft
             text: modelData.text
-            font.bold: true
             linkColor: FluTheme.dark ? FluColors.Teal.lighter : FluColors.Teal.dark
             onLinkActivated:
                 (link)=> {
@@ -106,7 +105,6 @@ FluScrollablePage{
 
     RowLayout{
         spacing: 20
-        Layout.topMargin: 20
         FluTextBox{
             id: text_box
             text: "Technical testing 2015-09-01"

@@ -22,7 +22,7 @@ Button {
     property alias textColor: btn_text.textColor
     property bool textRight: true
     property real textSpacing: 6
-    property bool enableAnimation: FluTheme.enableAnimation
+    property bool animationEnabled: FluTheme.animationEnabled
     property var clickListener : function(){
         checked = !checked
     }
@@ -41,6 +41,8 @@ Button {
             visible: control.activeFocus
         }
     }
+    focusPolicy:Qt.TabFocus
+    font:FluTextStyle.Body
     horizontalPadding:0
     verticalPadding: 0
     padding: 0
@@ -48,7 +50,6 @@ Button {
     Accessible.name: control.text
     Accessible.description: contentDescription
     Accessible.onPressAction: control.clicked()
-    focusPolicy:Qt.TabFocus
     contentItem: RowLayout{
         spacing: control.textSpacing
         layoutDirection:control.textRight ? Qt.LeftToRight : Qt.RightToLeft
@@ -94,7 +95,7 @@ Button {
                 return normalColor
             }
             Behavior on color {
-                enabled: control.enableAnimation
+                enabled: control.animationEnabled
                 ColorAnimation{
                     duration: 83
                 }
@@ -107,7 +108,7 @@ Button {
                 visible: indeterminate
                 iconColor: FluTheme.dark ? Qt.rgba(0,0,0,1) : Qt.rgba(1,1,1,1)
                 Behavior on visible {
-                    enabled: control.enableAnimation
+                    enabled: control.animationEnabled
                     NumberAnimation{
                         duration: 83
                     }
@@ -121,7 +122,7 @@ Button {
                 visible: checked && !indeterminate
                 iconColor: FluTheme.dark ? Qt.rgba(0,0,0,1) : Qt.rgba(1,1,1,1)
                 Behavior on visible {
-                    enabled: control.enableAnimation
+                    enabled: control.animationEnabled
                     NumberAnimation{
                         duration: 83
                     }
@@ -133,6 +134,7 @@ Button {
             text: control.text
             Layout.alignment: Qt.AlignVCenter
             visible: text !== ""
+            font: control.font
         }
     }
 }
