@@ -62,7 +62,7 @@ Button {
                 return checked ? 4 : 1
             }
             Behavior on border.width {
-                enabled: FluTheme.enableAnimation
+                enabled: FluTheme.animationEnabled
                 NumberAnimation{
                     duration: 167
                     easing.type: Easing.OutCubic
@@ -89,6 +89,7 @@ Button {
             text: control.text
             Layout.alignment: Qt.AlignVCenter
             font: control.font
+            visible: text !== ""
         }
     }
 }

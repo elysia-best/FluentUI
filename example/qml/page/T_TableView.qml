@@ -11,9 +11,8 @@ FluContentPage{
     title: qsTr("TableView")
     signal checkBoxChanged
 
-    property var dataSource : []
     property int sortType: 0
-    property bool seletedAll: true
+    property bool selectedAll: true
     property string nameKeyword: ""
 
     onNameKeywordChanged: {
@@ -32,11 +31,11 @@ FluContentPage{
     onCheckBoxChanged: {
         for(var i =0;i< table_view.rows ;i++){
             if(false === table_view.getRow(i).checkbox.options.checked){
-                root.seletedAll = false
+                root.selectedAll = false
                 return
             }
         }
-        root.seletedAll = true
+        root.selectedAll = true
     }
 
     onSortTypeChanged: {
@@ -159,7 +158,7 @@ FluContentPage{
             FluCheckBox{
                 anchors.centerIn: parent
                 checked: true === options.checked
-                enableAnimation: false
+                animationEnabled: false
                 clickListener: function(){
                     var obj = table_view.getRow(row)
                     obj.checkbox = table_view.customItem(com_checbox,{checked:!options.checked})
@@ -238,13 +237,15 @@ FluContentPage{
                     Layout.alignment: Qt.AlignVCenter
                 }
                 FluCheckBox{
-                    checked: true === root.seletedAll
-                    enableAnimation: false
+                    checked: true === root.selectedAll
+                    animationEnabled: false
                     Layout.alignment: Qt.AlignVCenter
                     clickListener: function(){
-                        root.seletedAll = !root.seletedAll
-                        var checked = root.seletedAll
-                        itemModel.display = table_view.customItem(com_column_checbox,{"checked":checked})
+                        root.selectedAll = !root.selectedAll
+                        var checked = root.selectedAll
+                        var columnModel = model.display
+                        columnModel.title = table_view.customItem(com_column_checbox,{"checked":checked})
+                        model.display = columnModel
                         for(var i =0;i< table_view.rows ;i++){
                             var rowData = table_view.getRow(i)
                             rowData.checkbox = table_view.customItem(com_checbox,{"checked":checked})
@@ -271,10 +272,34 @@ FluContentPage{
             }
             Component.onCompleted: {
                 currentIndex=["100","300","500","1000"].findIndex((element) => element === display)
-                selectAll()
+                textBox.forceActiveFocus()
+                textBox.selectAll()
             }
             onCommit: {
                 editTextChaged(editText)
+                tableView.closeEditor()
+            }
+        }
+    }
+
+    Component{
+        id:com_auto_suggestbox
+        FluAutoSuggestBox {
+            id: textbox
+            anchors.fill: parent
+            focus: true
+            Component.onCompleted: {
+                var data = ["傲来国界花果山水帘洞","傲来国界坎源山脏水洞","大唐国界黑风山黑风洞","大唐国界黄风岭黄风洞","大唐国界骷髅山白骨洞","宝象国界碗子山波月洞","宝象国界平顶山莲花洞","宝象国界压龙山压龙洞","乌鸡国界号山枯松涧火云洞","乌鸡国界衡阳峪黑水河河神府"]
+                var result = data.map(function(item) {
+                    return {title: item};
+                });
+                items = result
+                textbox.text= String(display)
+                forceActiveFocus()
+                selectAll()
+            }
+            onCommit: {
+                editTextChaged(textbox.text)
                 tableView.closeEditor()
             }
         }
@@ -323,7 +348,9 @@ FluContentPage{
                 cursorShape: Qt.PointingHandCursor
                 onClicked: {
                     custom_update_dialog.showDialog(options.title,function(text){
-                        itemModel.display = table_view.customItem(com_column_update_title,{"title":text})
+                        var columnModel = model.display
+                        columnModel.title = table_view.customItem(com_column_update_title,{"title":text})
+                        model.display = columnModel
                     })
                 }
             }
@@ -390,7 +417,7 @@ FluContentPage{
         }
     }
 
-    FluArea{
+    FluFrame{
         id:layout_controls
         anchors{
             left: parent.left
@@ -421,15 +448,15 @@ FluContentPage{
                     var data = []
                     var rows = []
                     for (var i = 0; i < table_view.rows; i++) {
-                        var item = table_view.getRow(i);
+                        var item = table_view.getRow(i)
                         rows.push(item)
                         if (!item.checkbox.options.checked) {
                             data.push(item);
                         }
                     }
-                    var sourceModel = table_view.sourceModel;
+                    var sourceModel = table_view.sourceModel
                     for (i = 0; i < sourceModel.rowCount; i++) {
-                        var sourceItem = sourceModel.getRow(i);
+                        var sourceItem = sourceModel.getRow(i)
                         const foundItem = rows.find(item=> item._key === sourceItem._key)
                         if (!foundItem) {
                             data.push(sourceItem);
@@ -438,14 +465,24 @@ FluContentPage{
                     table_view.dataSource = data
                 }
             }
-
             FluButton{
                 text: qsTr("Add a row of Data")
                 onClicked: {
                     table_view.appendRow(genTestObject())
                 }
             }
-
+            FluButton{
+                text: qsTr("Insert a Row")
+                onClicked: {
+                    var index = table_view.currentIndex()
+                    if(index !== -1){
+                        var testObj = genTestObject()
+                        table_view.insertRow(index,testObj)
+                    }else{
+                        showWarning(qsTr("Focus not acquired: Please click any item in the form as the target for insertion!"))
+                    }
+                }
+            }
         }
     }
 
@@ -465,19 +502,18 @@ FluContentPage{
             {
                 title: table_view.customItem(com_column_checbox,{checked:true}),
                 dataIndex: 'checkbox',
-                width:100,
-                minimumWidth:100,
-                maximumWidth:100
-            },
-            {
-                title: table_view.customItem(com_column_update_title,{title:qsTr("Avatar")}),
-                dataIndex: 'avatar',
-                width:100
+                frozen: true
             },
             {
                 title: table_view.customItem(com_column_filter_name,{title:qsTr("Name")}),
                 dataIndex: 'name',
                 readOnly:true
+            },
+            {
+                title: table_view.customItem(com_column_update_title,{title:qsTr("Avatar")}),
+                dataIndex: 'avatar',
+                width:100,
+                frozen:true
             },
             {
                 title: table_view.customItem(com_column_sort_age,{sort:0}),
@@ -490,6 +526,7 @@ FluContentPage{
             {
                 title: qsTr("Address"),
                 dataIndex: 'address',
+                editDelegate: com_auto_suggestbox,
                 width:200,
                 minimumWidth:100,
                 maximumWidth:250
@@ -513,8 +550,7 @@ FluContentPage{
                 title: qsTr("Options"),
                 dataIndex: 'action',
                 width:160,
-                minimumWidth:160,
-                maximumWidth:160
+                frozen:true
             }
         ]
     }
@@ -566,7 +602,7 @@ FluContentPage{
             return avatars[randomIndex];
         }
         return {
-            checkbox: table_view.customItem(com_checbox,{checked:root.seletedAll}),
+            checkbox: table_view.customItem(com_checbox,{checked:root.selectedAll}),
             avatar:table_view.customItem(com_avatar,{avatar:getAvatar()}),
             name: getRandomName(),
             age:getRandomAge(),
@@ -579,12 +615,11 @@ FluContentPage{
         }
     }
     function loadData(page,count){
-        root.seletedAll = true
+        root.selectedAll = true
         const dataSource = []
         for(var i=0;i<count;i++){
             dataSource.push(genTestObject())
         }
-        root.dataSource = dataSource
-        table_view.dataSource = root.dataSource
+        table_view.dataSource = dataSource
     }
 }

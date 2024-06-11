@@ -1,4 +1,4 @@
 #include "FluAccentColor.h"
 
-FluAccentColor::FluAccentColor(QObject *parent):QObject{parent}{
+FluAccentColor::FluAccentColor(QObject *parent) : QObject{parent} {
 }
