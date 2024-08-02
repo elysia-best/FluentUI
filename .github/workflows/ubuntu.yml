@@ -9,6 +9,8 @@ on:
   pull_request:
     branches: [ deb_pack ]
 
+  workflow_dispatch:
+
 jobs:
   debian:
     name: ubuntu-20.04
