@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.20)
 
 find_package(ECM REQUIRED NO_MODULE)
 list(APPEND CMAKE_MODULE_PATH ${ECM_MODULE_PATH} ${ECM_KDE_MODULE_DIR})
+message(STATUS "ECM version: ${ECM_VERSION}")
 
 if (FLUENTUI_BUILD_STATIC_LIB AND (QT_VERSION VERSION_GREATER_EQUAL "6.2"))
     project(fluentui VERSION 1.0)
@@ -36,8 +37,13 @@ option(FLUENTUI_BUILD_STATIC_LIB "Build static library." OFF)
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core Quick Qml Widgets PrintSupport)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Quick Widgets PrintSupport)
 
-include(ECMQueryQt)
-ecm_query_qt(INSTALL_QMLDIR QT_INSTALL_QML)
+if(ECM_VERSION VERSION_LESS 5.93.0)
+    include(ECMQueryQmake)
+    query_qmake(INSTALL_QMLDIR QT_INSTALL_QML)
+else()
+    include(ECMQueryQt)
+    ecm_query_qt(INSTALL_QMLDIR QT_INSTALL_QML)
+endif()
 
 #设置QML插件输出目录，可以通过外部设置，如果外部没有设置就默认到<QT_SDK_DIR_PATH>\qml\FluentUI目录下
 set(FLUENTUI_QML_PLUGIN_DIRECTORY "" CACHE PATH "Path to FluentUI plugin")
