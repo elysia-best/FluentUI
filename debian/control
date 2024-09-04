@@ -5,7 +5,7 @@ Maintainer: LingmoOS <lingmo@lingmo.org>
 Build-Depends: cmake,
                debhelper (>= 9),
                extra-cmake-modules,
-               libqt5x11extras5-dev
+               libqt5x11extras5-dev,
                qtbase5-dev,
                qtdeclarative5-dev,
                qtquickcontrols2-5-dev,
