@@ -8,28 +8,132 @@
 
 #ifdef Q_OS_WIN
 
-#pragma comment (lib, "user32.lib")
-#pragma comment (lib, "dwmapi.lib")
+static DwmSetWindowAttributeFunc pDwmSetWindowAttribute = nullptr;
+static DwmExtendFrameIntoClientAreaFunc pDwmExtendFrameIntoClientArea = nullptr;
+static DwmIsCompositionEnabledFunc pDwmIsCompositionEnabled = nullptr;
+static DwmEnableBlurBehindWindowFunc pDwmEnableBlurBehindWindow = nullptr;
+static SetWindowCompositionAttributeFunc pSetWindowCompositionAttribute = nullptr;
 
-#include <windows.h>
-#include <windowsx.h>
-#include <dwmapi.h>
+static RTL_OSVERSIONINFOW GetRealOSVersionImpl() {
+    HMODULE hMod = ::GetModuleHandleW(L"ntdll.dll");
+    using RtlGetVersionPtr = NTSTATUS(WINAPI *)(PRTL_OSVERSIONINFOW);
+    auto pRtlGetVersion =
+        reinterpret_cast<RtlGetVersionPtr>(::GetProcAddress(hMod, "RtlGetVersion"));
+    RTL_OSVERSIONINFOW rovi{};
+    rovi.dwOSVersionInfoSize = sizeof(rovi);
+    pRtlGetVersion(&rovi);
+    return rovi;
+}
+
+RTL_OSVERSIONINFOW GetRealOSVersion() {
+    static const auto result = GetRealOSVersionImpl();
+    return result;
+}
+
+static inline bool isWin8OrGreater() {
+    RTL_OSVERSIONINFOW rovi = GetRealOSVersion();
+    return (rovi.dwMajorVersion > 6) || (rovi.dwMajorVersion == 6 && rovi.dwMinorVersion >= 2);
+}
+
+static inline bool isWin8Point1OrGreater() {
+    RTL_OSVERSIONINFOW rovi = GetRealOSVersion();
+    return (rovi.dwMajorVersion > 6) || (rovi.dwMajorVersion == 6 && rovi.dwMinorVersion >= 3);
+}
+
+static inline bool isWin10OrGreater() {
+    RTL_OSVERSIONINFOW rovi = GetRealOSVersion();
+    return (rovi.dwMajorVersion > 10) || (rovi.dwMajorVersion == 10 && rovi.dwMinorVersion >= 0);
+}
+
+static inline bool isWin101809OrGreater() {
+    RTL_OSVERSIONINFOW rovi = GetRealOSVersion();
+    return (rovi.dwMajorVersion > 10) ||
+           (rovi.dwMajorVersion == 10 && rovi.dwMinorVersion >= 0 && rovi.dwBuildNumber >= 17763);
+}
+
+static inline bool isWin101903OrGreater() {
+    RTL_OSVERSIONINFOW rovi = GetRealOSVersion();
+    return (rovi.dwMajorVersion > 10) ||
+           (rovi.dwMajorVersion == 10 && rovi.dwMinorVersion >= 0 && rovi.dwBuildNumber >= 18362);
+}
+
+static inline bool isWin11OrGreater() {
+    RTL_OSVERSIONINFOW rovi = GetRealOSVersion();
+    return (rovi.dwMajorVersion > 10) ||
+           (rovi.dwMajorVersion == 10 && rovi.dwMinorVersion >= 0 && rovi.dwBuildNumber >= 22000);
+}
+
+static inline bool isWin1122H2OrGreater() {
+    RTL_OSVERSIONINFOW rovi = GetRealOSVersion();
+    return (rovi.dwMajorVersion > 10) ||
+           (rovi.dwMajorVersion == 10 && rovi.dwMinorVersion >= 0 && rovi.dwBuildNumber >= 22621);
+}
+
+static inline bool isWin10Only() {
+    return isWin10OrGreater() && !isWin11OrGreater();
+}
+
+static inline bool isWin7Only() {
+    RTL_OSVERSIONINFOW rovi = GetRealOSVersion();
+    return rovi.dwMajorVersion == 7;
+}
 
 static inline QByteArray qtNativeEventType() {
     static const auto result = "windows_generic_MSG";
     return result;
 }
 
-static inline bool isCompositionEnabled() {
-    typedef HRESULT (WINAPI *DwmIsCompositionEnabledPtr)(BOOL *pfEnabled);
-    HMODULE module = ::LoadLibraryW(L"dwmapi.dll");
+static inline bool initializeFunctionPointers() {
+    HMODULE module = LoadLibraryW(L"dwmapi.dll");
     if (module) {
-        BOOL composition_enabled = false;
-        DwmIsCompositionEnabledPtr dwm_is_composition_enabled;
-        dwm_is_composition_enabled = reinterpret_cast<DwmIsCompositionEnabledPtr>(::GetProcAddress(module, "DwmIsCompositionEnabled"));
-        if (dwm_is_composition_enabled) {
-            dwm_is_composition_enabled(&composition_enabled);
+        if (!pDwmSetWindowAttribute) {
+            pDwmSetWindowAttribute = reinterpret_cast<DwmSetWindowAttributeFunc>(
+                GetProcAddress(module, "DwmSetWindowAttribute"));
+            if (!pDwmSetWindowAttribute) {
+                return false;
+            }
         }
+        if (!pDwmExtendFrameIntoClientArea) {
+            pDwmExtendFrameIntoClientArea = reinterpret_cast<DwmExtendFrameIntoClientAreaFunc>(
+                GetProcAddress(module, "DwmExtendFrameIntoClientArea"));
+            if (!pDwmExtendFrameIntoClientArea) {
+                return false;
+            }
+        }
+        if (!pDwmIsCompositionEnabled) {
+            pDwmIsCompositionEnabled = reinterpret_cast<DwmIsCompositionEnabledFunc>(
+                ::GetProcAddress(module, "DwmIsCompositionEnabled"));
+            if (!pDwmIsCompositionEnabled) {
+                return false;
+            }
+        }
+        if (!pDwmEnableBlurBehindWindow) {
+            pDwmEnableBlurBehindWindow =
+                reinterpret_cast<DwmEnableBlurBehindWindowFunc>(
+                    GetProcAddress(module, "DwmEnableBlurBehindWindow"));
+            if (!pDwmEnableBlurBehindWindow) {
+                return false;
+            }
+        }
+        if (!pSetWindowCompositionAttribute) {
+            HMODULE user32 = LoadLibraryW(L"user32.dll");
+            if (!user32) {
+                return false;
+            }
+            pSetWindowCompositionAttribute = reinterpret_cast<SetWindowCompositionAttributeFunc>(
+                GetProcAddress(user32, "SetWindowCompositionAttribute"));
+            if (!pSetWindowCompositionAttribute) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+static inline bool isCompositionEnabled() {
+    if(initializeFunctionPointers()){
+        BOOL composition_enabled = false;
+        pDwmIsCompositionEnabled(&composition_enabled);
         return composition_enabled;
     }
     return false;
@@ -37,15 +141,118 @@ static inline bool isCompositionEnabled() {
 
 static inline void setShadow(HWND hwnd) {
     const MARGINS shadow = {1, 0, 0, 0};
-    typedef HRESULT (WINAPI *DwmExtendFrameIntoClientAreaPtr)(HWND hWnd, const MARGINS *pMarInset);
-    HMODULE module = LoadLibraryW(L"dwmapi.dll");
-    if (module) {
-        DwmExtendFrameIntoClientAreaPtr dwm_extendframe_into_client_area_;
-        dwm_extendframe_into_client_area_ = reinterpret_cast<DwmExtendFrameIntoClientAreaPtr>(GetProcAddress(module, "DwmExtendFrameIntoClientArea"));
-        if (dwm_extendframe_into_client_area_) {
-            dwm_extendframe_into_client_area_(hwnd, &shadow);
-        }
+    if (initializeFunctionPointers()) {
+        pDwmExtendFrameIntoClientArea(hwnd, &shadow);
     }
+    if(isWin7Only()){
+        SetClassLong(hwnd, GCL_STYLE, GetClassLong(hwnd, GCL_STYLE) | CS_DROPSHADOW);
+    }
+}
+
+static inline bool setWindowDarkMode(HWND hwnd, const BOOL enable) {
+    if (!initializeFunctionPointers()) {
+        return false;
+    }
+    return bool(pDwmSetWindowAttribute(hwnd, 20, &enable, sizeof(BOOL)));
+}
+
+static inline bool setWindowEffect(HWND hwnd, const QString &key, const bool &enable) {
+    static constexpr const MARGINS extendedMargins = {-1, -1, -1, -1};
+    if (key == QStringLiteral("mica")) {
+        if (!isWin11OrGreater() || !initializeFunctionPointers()) {
+            return false;
+        }
+        if (enable) {
+            pDwmExtendFrameIntoClientArea(hwnd, &extendedMargins);
+            if (isWin1122H2OrGreater()) {
+                const DWORD backdropType = _DWMSBT_MAINWINDOW;
+                pDwmSetWindowAttribute(hwnd, 38, &backdropType, sizeof(backdropType));
+            } else {
+                const BOOL enable = TRUE;
+                pDwmSetWindowAttribute(hwnd, 1029, &enable, sizeof(enable));
+            }
+        } else {
+            if (isWin1122H2OrGreater()) {
+                const DWORD backdropType = _DWMSBT_AUTO;
+                pDwmSetWindowAttribute(hwnd, 38, &backdropType, sizeof(backdropType));
+            } else {
+                const BOOL enable = FALSE;
+                pDwmSetWindowAttribute(hwnd, 1029, &enable, sizeof(enable));
+            }
+        }
+        return true;
+    }
+
+    if (key == QStringLiteral("mica-alt")) {
+        if (!isWin1122H2OrGreater() || !initializeFunctionPointers()) {
+            return false;
+        }
+        if (enable) {
+            pDwmExtendFrameIntoClientArea(hwnd, &extendedMargins);
+            const DWORD backdropType = _DWMSBT_TABBEDWINDOW;
+            pDwmSetWindowAttribute(hwnd, 38, &backdropType, sizeof(backdropType));
+        } else {
+            const DWORD backdropType = _DWMSBT_AUTO;
+            pDwmSetWindowAttribute(hwnd, 38, &backdropType, sizeof(backdropType));
+        }
+        return true;
+    }
+
+    if (key == QStringLiteral("acrylic")) {
+        if (!isWin11OrGreater() || !initializeFunctionPointers()) {
+            return false;
+        }
+        if (enable) {
+            pDwmExtendFrameIntoClientArea(hwnd, &extendedMargins);
+            DWORD system_backdrop_type = _DWMSBT_TRANSIENTWINDOW;
+            pDwmSetWindowAttribute(hwnd, 38, &system_backdrop_type, sizeof(DWORD));
+        } else {
+            const DWORD backdropType = _DWMSBT_AUTO;
+            pDwmSetWindowAttribute(hwnd, 38, &backdropType, sizeof(backdropType));
+        }
+        return true;
+    }
+
+    if (key == QStringLiteral("dwm-blur")) {
+        if ((isWin7Only() && !isCompositionEnabled()) || !initializeFunctionPointers()) {
+            return false;
+        }
+        if (enable) {
+            if (isWin8OrGreater()) {
+                ACCENT_POLICY policy{};
+                policy.dwAccentState = ACCENT_ENABLE_BLURBEHIND;
+                policy.dwAccentFlags = ACCENT_NONE;
+                WINDOWCOMPOSITIONATTRIBDATA wcad{};
+                wcad.Attrib = WCA_ACCENT_POLICY;
+                wcad.pvData = &policy;
+                wcad.cbData = sizeof(policy);
+                pSetWindowCompositionAttribute(hwnd, &wcad);
+            } else {
+                DWM_BLURBEHIND bb{};
+                bb.fEnable = TRUE;
+                bb.dwFlags = DWM_BB_ENABLE;
+                pDwmEnableBlurBehindWindow(hwnd, &bb);
+            }
+        } else {
+            if (isWin8OrGreater()) {
+                ACCENT_POLICY policy{};
+                policy.dwAccentState = ACCENT_DISABLED;
+                policy.dwAccentFlags = ACCENT_NONE;
+                WINDOWCOMPOSITIONATTRIBDATA wcad{};
+                wcad.Attrib = WCA_ACCENT_POLICY;
+                wcad.pvData = &policy;
+                wcad.cbData = sizeof(policy);
+                pSetWindowCompositionAttribute(hwnd, &wcad);
+            } else {
+                DWM_BLURBEHIND bb{};
+                bb.fEnable = FALSE;
+                bb.dwFlags = DWM_BB_ENABLE;
+                pDwmEnableBlurBehindWindow(hwnd, &bb);
+            }
+        }
+        return true;
+    }
+    return false;
 }
 
 #endif
@@ -70,6 +277,8 @@ FluFrameless::FluFrameless(QQuickItem *parent) : QQuickItem{parent} {
     _closeButton = nullptr;
     _topmost = false;
     _disabled = false;
+    _effect = "normal";
+    _effective = false;
     _isWindows11OrGreater = FluTools::getInstance()->isWindows11OrGreater();
 }
 
@@ -80,13 +289,54 @@ FluFrameless::~FluFrameless() = default;
 }
 
 void FluFrameless::componentComplete() {
+#ifdef Q_OS_WIN
+    HWND hwnd = reinterpret_cast<HWND>(window()->winId());
+    if (isWin11OrGreater()) {
+        availableEffects({"mica", "mica-alt", "acrylic", "dwm-blur", "normal"});
+    } else {
+        availableEffects({"dwm-blur","normal"});
+    }
+    if (!_effect.isEmpty() && _useSystemEffect) {
+        effective(setWindowEffect(hwnd, _effect, true));
+        if (effective()) {
+            _currentEffect = effect();
+        }
+    }
+    connect(this, &FluFrameless::effectChanged, this, [hwnd, this] {
+        if (effect() == _currentEffect) {
+            return;
+        }
+        if (effective()) {
+            setWindowEffect(hwnd, _currentEffect, false);
+        }
+        effective(setWindowEffect(hwnd, effect(), true));
+        if (effective()) {
+            _currentEffect = effect();
+            _useSystemEffect = true;
+        } else {
+            _effect = "normal";
+            _currentEffect = "normal";
+            _useSystemEffect = false;
+        }
+    });
+    connect(this, &FluFrameless::useSystemEffectChanged, this, [this] {
+        if (!_useSystemEffect) {
+            effect("normal");
+        }
+    });
+    connect(this, &FluFrameless::isDarkModeChanged, this, [hwnd, this] {
+        if (effective() && !_currentEffect.isEmpty() && _currentEffect != "normal") {
+            setWindowDarkMode(hwnd, _isDarkMode);
+        }
+    });
+#endif
     if (_disabled) {
         return;
     }
     int w = window()->width();
     int h = window()->height();
     _current = window()->winId();
-    window()->setFlags((window()->flags()) | Qt::CustomizeWindowHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint | Qt::FramelessWindowHint);
+    window()->setFlags((window()->flags()) | Qt::CustomizeWindowHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint);
     if (!_fixSize) {
         window()->setFlag(Qt::WindowMaximizeButtonHint);
     }
@@ -102,25 +352,25 @@ void FluFrameless::componentComplete() {
         setHitTestVisible(_closeButton);
     }
 #ifdef Q_OS_WIN
-    HWND hwnd = reinterpret_cast<HWND>(window()->winId());
-    DWORD style = ::GetWindowLongPtr(hwnd, GWL_STYLE);
-    if (_fixSize) {
-#if (QT_VERSION == QT_VERSION_CHECK(6, 5, 3) || QT_VERSION == QT_VERSION_CHECK(6, 6, 0))
-        ::SetWindowLongPtr(hwnd, GWL_STYLE, style | WS_THICKFRAME);;
-#else
-        ::SetWindowLongPtr(hwnd, GWL_STYLE, style | WS_THICKFRAME | WS_CAPTION);
+#if (QT_VERSION == QT_VERSION_CHECK(6, 5, 3))
+    qWarning()<<"Qt's own frameless bug, currently only exist in 6.5.3, please use other versions";
 #endif
+    if(!hwnd){
+        hwnd = reinterpret_cast<HWND>(window()->winId());
+    }
+    DWORD style = ::GetWindowLongPtr(hwnd, GWL_STYLE);
+#  if (QT_VERSION == QT_VERSION_CHECK(6, 7, 2))
+    style &= ~(WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU);
+#  endif
+    if (_fixSize) {
+        ::SetWindowLongPtr(hwnd, GWL_STYLE, style | WS_THICKFRAME | WS_CAPTION);;
         for (int i = 0; i <= QGuiApplication::screens().count() - 1; ++i) {
             connect(QGuiApplication::screens().at(i), &QScreen::logicalDotsPerInchChanged, this, [=] {
                 SetWindowPos(hwnd, nullptr, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOMOVE | SWP_FRAMECHANGED);
             });
         }
     } else {
-#if (QT_VERSION == QT_VERSION_CHECK(6, 5, 3) || QT_VERSION == QT_VERSION_CHECK(6, 6, 0))
-        ::SetWindowLongPtr(hwnd, GWL_STYLE, style | WS_MAXIMIZEBOX | WS_THICKFRAME);
-#else
         ::SetWindowLongPtr(hwnd, GWL_STYLE, style | WS_MAXIMIZEBOX | WS_THICKFRAME | WS_CAPTION);
-#endif
     }
     SetWindowPos(hwnd, nullptr, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOMOVE | SWP_NOSIZE | SWP_FRAMECHANGED);
     connect(window(), &QQuickWindow::screenChanged, this, [hwnd] {
@@ -173,38 +423,12 @@ void FluFrameless::componentComplete() {
         }
         return false;
     } else if (uMsg == WM_NCCALCSIZE && wParam == TRUE) {
-        const auto clientRect = &(reinterpret_cast<LPNCCALCSIZE_PARAMS>(lParam))->rgrc[0];
-        const LONG originalTop = clientRect->top;
-        const LONG originalLeft = clientRect->left;
-        const LONG originalBottom = clientRect->bottom;
-        const LONG originalRight = clientRect->right;
-        const LRESULT hitTestResult = ::DefWindowProcW(hwnd, WM_NCCALCSIZE, wParam, lParam);
-        if ((hitTestResult != HTERROR) && (hitTestResult != HTNOWHERE)) {
-            *result = static_cast<QT_NATIVE_EVENT_RESULT_TYPE>(hitTestResult);
-            return true;
-        }
-#if (QT_VERSION == QT_VERSION_CHECK(6, 5, 3) || QT_VERSION == QT_VERSION_CHECK(6, 6, 0))
-        clientRect->top = originalTop;
-        clientRect->bottom = originalBottom;
-        clientRect->left = originalLeft;
-        clientRect->right = originalRight;
-#else
         bool isMaximum = ::IsZoomed(hwnd);
         if (isMaximum) {
-            auto geometry = window()->screen()->geometry();
-            auto offsetX = qAbs(geometry.left() - originalLeft);
-            auto offsetY = qAbs(geometry.top() - originalTop);
-            clientRect->top = originalTop + offsetY;
-            clientRect->bottom = originalBottom - offsetY;
-            clientRect->left = originalLeft + offsetX;
-            clientRect->right = originalRight - offsetX;
-        } else {
-            clientRect->top = originalTop;
-            clientRect->bottom = originalBottom;
-            clientRect->left = originalLeft;
-            clientRect->right = originalRight;
+            window()->setProperty("__margins",7);
+        }else{
+            window()->setProperty("__margins",0);
         }
-#endif
         _setMaximizeHovered(false);
         *result = WVR_REDRAW;
         return true;
@@ -262,32 +486,14 @@ void FluFrameless::componentComplete() {
         *result = HTCLIENT;
         return true;
     } else if (uMsg == WM_NCPAINT) {
-#if (QT_VERSION == QT_VERSION_CHECK(6, 5, 3) || QT_VERSION == QT_VERSION_CHECK(6, 6, 0))
         *result = FALSE;
-        return true;
-#else
-        if (isCompositionEnabled()) {
-            return false;
-        }
-        *result = FALSE;
-        return true;
-#endif
+        return false;
     } else if (uMsg == WM_NCACTIVATE) {
         *result = TRUE;
+        if (effective() || (!effect().isEmpty() && _currentEffect!="normal")) {
+            return false;
+        }
         return true;
-    } else if (uMsg == WM_GETMINMAXINFO) {
-#if (QT_VERSION == QT_VERSION_CHECK(6, 5, 3) || QT_VERSION == QT_VERSION_CHECK(6, 6, 0))
-        auto *minmaxInfo = reinterpret_cast<MINMAXINFO *>(lParam);
-        auto pixelRatio = window()->devicePixelRatio();
-        auto geometry = window()->screen()->availableGeometry();
-        RECT rect;
-        SystemParametersInfo(SPI_GETWORKAREA, 0, &rect, 0);
-        minmaxInfo->ptMaxPosition.x = rect.left;
-        minmaxInfo->ptMaxPosition.y = rect.top;
-        minmaxInfo->ptMaxSize.x = qRound(geometry.width() * pixelRatio);
-        minmaxInfo->ptMaxSize.y = qRound(geometry.height() * pixelRatio);
-#endif
-        return false;
     } else if (_isWindows11OrGreater && (uMsg == WM_NCLBUTTONDBLCLK || uMsg == WM_NCLBUTTONDOWN)) {
         if (_hitMaximizeButton()) {
             QMouseEvent event = QMouseEvent(QEvent::MouseButtonPress, QPoint(), QPoint(), Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
@@ -483,72 +689,72 @@ void FluFrameless::_setWindowTopmost(bool topmost) {
 bool FluFrameless::eventFilter(QObject *obj, QEvent *ev) {
 #ifndef Q_OS_WIN
     switch (ev->type()) {
-    case QEvent::MouseButtonPress:
-        if(_edges!=0){
-            QMouseEvent *event = static_cast<QMouseEvent*>(ev);
-            if(event->button() == Qt::LeftButton){
-                _updateCursor(_edges);
-                window()->startSystemResize(Qt::Edges(_edges));
-            }
-        }else{
-            if(_hitAppBar()){
-                qint64 clickTimer = QDateTime::currentMSecsSinceEpoch();
-                qint64 offset =  clickTimer - this->_clickTimer;
-                this->_clickTimer = clickTimer;
-                if(offset<300){
-                    if(_isMaximized()){
-                        showNormal();
+        case QEvent::MouseButtonPress:
+            if(_edges!=0){
+                QMouseEvent *event = static_cast<QMouseEvent*>(ev);
+                if(event->button() == Qt::LeftButton){
+                    _updateCursor(_edges);
+                    window()->startSystemResize(Qt::Edges(_edges));
+                }
+            }else{
+                if(_hitAppBar()){
+                    qint64 clickTimer = QDateTime::currentMSecsSinceEpoch();
+                    qint64 offset =  clickTimer - this->_clickTimer;
+                    this->_clickTimer = clickTimer;
+                    if(offset<300){
+                        if(_isMaximized()){
+                            showNormal();
+                        }else{
+                            showMaximized();
+                        }
                     }else{
-                        showMaximized();
+                        window()->startSystemMove();
                     }
-                }else{
-                    window()->startSystemMove();
                 }
             }
-        }
-        break;
-    case QEvent::MouseButtonRelease:
-        _edges = 0;
-        break;
-    case QEvent::MouseMove: {
-        if(_isMaximized() || _isFullScreen()){
             break;
-        }
-        if(_fixSize){
+        case QEvent::MouseButtonRelease:
+            _edges = 0;
             break;
-        }
-        QMouseEvent *event = static_cast<QMouseEvent*>(ev);
-        QPoint p =
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-            event->pos();
-#else
-            event->position().toPoint();
-#endif
-        if(p.x() >= _margins && p.x() <= (window()->width() - _margins) && p.y() >= _margins && p.y() <= (window()->height() - _margins)){
-            if(_edges != 0){
-                _edges = 0;
-                _updateCursor(_edges);
+        case QEvent::MouseMove: {
+            if(_isMaximized() || _isFullScreen()){
+                break;
             }
+            if(_fixSize){
+                break;
+            }
+            QMouseEvent *event = static_cast<QMouseEvent*>(ev);
+            QPoint p =
+#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
+                event->pos();
+#else
+                event->position().toPoint();
+#endif
+            if(p.x() >= _margins && p.x() <= (window()->width() - _margins) && p.y() >= _margins && p.y() <= (window()->height() - _margins)){
+                if(_edges != 0){
+                    _edges = 0;
+                    _updateCursor(_edges);
+                }
+                break;
+            }
+            _edges = 0;
+            if ( p.x() < _margins ) {
+                _edges |= Qt::LeftEdge;
+            }
+            if ( p.x() > (window()->width() - _margins) ) {
+                _edges |= Qt::RightEdge;
+            }
+            if ( p.y() < _margins ) {
+                _edges |= Qt::TopEdge;
+            }
+            if ( p.y() > (window()->height() - _margins) ) {
+                _edges |= Qt::BottomEdge;
+            }
+            _updateCursor(_edges);
             break;
         }
-        _edges = 0;
-        if ( p.x() < _margins ) {
-            _edges |= Qt::LeftEdge;
-        }
-        if ( p.x() > (window()->width() - _margins) ) {
-            _edges |= Qt::RightEdge;
-        }
-        if ( p.y() < _margins ) {
-            _edges |= Qt::TopEdge;
-        }
-        if ( p.y() > (window()->height() - _margins) ) {
-            _edges |= Qt::BottomEdge;
-        }
-        _updateCursor(_edges);
-        break;
-    }
-    default:
-        break;
+        default:
+            break;
     }
 #endif
     return QObject::eventFilter(obj, ev);

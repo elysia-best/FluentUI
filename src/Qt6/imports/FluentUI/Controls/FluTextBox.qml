@@ -70,7 +70,7 @@ TextField{
             if(control.readOnly && control.text === ""){
                 return
             }
-            menu.popup()
+            menu_loader.popup()
         }
     }
     RowLayout{
@@ -112,8 +112,22 @@ TextField{
             visible: control.iconSource != 0
         }
     }
-    FluTextBoxMenu{
+    FluLoader{
+        id: menu_loader
+        function popup(){
+            sourceComponent = menu
+        }
+    }
+    Component{
         id:menu
-        inputItem: control
+        FluTextBoxMenu{
+            inputItem: control
+            Component.onCompleted: {
+                popup()
+            }
+            onClosed: {
+                menu_loader.sourceComponent = undefined
+            }
+        }
     }
 }

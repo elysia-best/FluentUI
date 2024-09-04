@@ -13,10 +13,14 @@ Window {
     property bool fixSize: false
     property Component loadingItem: com_loading
     property bool fitsAppBarWindows: false
+    property var tintOpacity: FluTheme.dark ? 0.80 : 0.75
+    property int blurRadius: 60
+    property alias effect: frameless.effect
+    readonly property alias effective: frameless.effective
+    readonly property alias availableEffects: frameless.availableEffects
     property Item appBar: FluAppBar {
         title: window.title
         height: 30
-        width: window.width
         showDark: window.showDark
         showClose: window.showClose
         showMinimize: window.showMinimize
@@ -25,6 +29,15 @@ Window {
         icon: window.windowIcon
     }
     property color backgroundColor: {
+        if(frameless.effective && active){
+            var backcolor
+            if(frameless.effect==="dwm-blur"){
+                backcolor = FluTools.withOpacity(FluTheme.windowActiveBackgroundColor, window.tintOpacity)
+            }else{
+                backcolor =  "transparent"
+            }
+            return backcolor
+        }
         if(active){
             return FluTheme.windowActiveBackgroundColor
         }
@@ -41,6 +54,7 @@ Window {
     property bool autoCenter: true
     property bool autoDestroy: true
     property bool useSystemAppBar
+    property int __margins: 0
     property color resizeBorderColor: {
         if(window.active){
             return FluTheme.dark ? Qt.rgba(51/255,51/255,51/255,1) : Qt.rgba(110/255,110/255,110/255,1)
@@ -73,7 +87,7 @@ Window {
         initArgument(argument)
         if(window.autoVisible){
             if(window.autoMaximize){
-                window.showMaximized()
+                window.visibility = Window.Maximized
             }else{
                 window.show()
             }
@@ -100,12 +114,19 @@ Window {
         fixSize: window.fixSize
         topmost: window.stayTop
         disabled: FluApp.useSystemAppBar
+        isDarkMode: FluTheme.dark
+        useSystemEffect: !FluTheme.blurBehindWindowEnabled
         Component.onCompleted: {
             frameless.setHitTestVisible(appBar.layoutMacosButtons)
             frameless.setHitTestVisible(appBar.layoutStandardbuttons)
         }
         Component.onDestruction: {
             frameless.onDestruction()
+        }
+        onEffectiveChanged: {
+            if(effective){
+                FluTheme.blurBehindWindowEnabled = false
+            }
         }
     }
     Component{
@@ -162,8 +183,8 @@ Window {
             FluAcrylic{
                 anchors.fill: parent
                 target: img_back
-                tintOpacity: FluTheme.dark ? 0.80 : 0.75
-                blurRadius: 64
+                tintOpacity: window.tintOpacity
+                blurRadius: window.blurRadius
                 visible: window.active && FluTheme.blurBehindWindowEnabled
                 tintColor: FluTheme.dark ? Qt.rgba(0, 0, 0, 1)  : Qt.rgba(1, 1, 1, 1)
                 targetRect: Qt.rect(window.x-window.screen.virtualX,window.y-window.screen.virtualY,window.width,window.height)
@@ -174,6 +195,11 @@ Window {
         id:com_app_bar
         Item{
             data: window.appBar
+            Component.onCompleted: {
+                window.appBar.width = Qt.binding(function(){
+                    return this.parent.width
+                })
+            }
         }
     }
     Component{
@@ -246,53 +272,58 @@ Window {
             border.color: window.resizeBorderColor
         }
     }
-    FluLoader{
-        anchors.fill: parent
-        sourceComponent: background
-    }
-    FluLoader{
-        id:loader_app_bar
-        anchors {
-            top: parent.top
-            left: parent.left
-            right: parent.right
-        }
-        height: {
-            if(window.useSystemAppBar){
-                return 0
-            }
-            return window.fitsAppBarWindows ? 0 : window.appBar.height
-        }
-        sourceComponent: window.useSystemAppBar ? undefined : com_app_bar
-    }
     Item{
-        id:layout_content
-        anchors{
-            top: loader_app_bar.bottom
-            left: parent.left
-            right: parent.right
-            bottom: parent.bottom
+        id: layout_container
+        anchors.fill: parent
+        anchors.margins: window.__margins
+        FluLoader{
+            anchors.fill: parent
+            sourceComponent: background
         }
-        clip: true
-    }
-    FluLoader{
-        property string loadingText
-        property bool cancel: false
-        id:loader_loading
-        anchors.fill: parent
-    }
-    FluInfoBar{
-        id:info_bar
-        root: window
-    }
-    FluLoader{
-        id:loader_border
-        anchors.fill: parent
-        sourceComponent: {
-            if(window.useSystemAppBar || FluTools.isWin() || window.visibility === Window.Maximized || window.visibility === Window.FullScreen){
-                return undefined
+        FluLoader{
+            id:loader_app_bar
+            anchors {
+                top: parent.top
+                left: parent.left
+                right: parent.right
             }
-            return com_border
+            height: {
+                if(window.useSystemAppBar){
+                    return 0
+                }
+                return window.fitsAppBarWindows ? 0 : window.appBar.height
+            }
+            sourceComponent: window.useSystemAppBar ? undefined : com_app_bar
+        }
+        Item{
+            id: layout_content
+            anchors{
+                top: loader_app_bar.bottom
+                left: parent.left
+                right: parent.right
+                bottom: parent.bottom
+            }
+            clip: true
+        }
+        FluLoader{
+            property string loadingText
+            property bool cancel: false
+            id:loader_loading
+            anchors.fill: parent
+        }
+        FluInfoBar{
+            id:info_bar
+            root: layout_container
+        }
+        FluLoader{
+            id:loader_border
+            anchors.fill: parent
+            sourceComponent: {
+                if(window.useSystemAppBar || FluTools.isWin() || window.visibility === Window.Maximized || window.visibility === Window.FullScreen){
+                    return undefined
+                }
+                return com_border
+            }
         }
     }
     function hideLoading(){
@@ -325,9 +356,6 @@ Window {
             window.minimumHeight = window.height
         }
     }
-    function registerForWindowResult(path){
-        return FluApp.createWindowRegister(window,path)
-    }
     function setResult(data){
         if(_windowRegister){
             _windowRegister.setResult(data)
@@ -355,5 +383,8 @@ Window {
     }
     function deleteLater(){
         FluTools.deleteLater(window)
+    }
+    function containerItem(){
+        return layout_container
     }
 }

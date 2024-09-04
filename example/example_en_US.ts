@@ -143,22 +143,22 @@
 <context>
     <name>InitializrHelper</name>
     <message>
-        <location filename="src/helper/InitializrHelper.cpp" line="69"/>
+        <location filename="src/helper/InitializrHelper.cpp" line="70"/>
         <source>The name cannot be empty</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/helper/InitializrHelper.cpp" line="73"/>
+        <location filename="src/helper/InitializrHelper.cpp" line="74"/>
         <source>The creation path cannot be empty</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/helper/InitializrHelper.cpp" line="78"/>
+        <location filename="src/helper/InitializrHelper.cpp" line="79"/>
         <source>The path does not exist</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/helper/InitializrHelper.cpp" line="84"/>
+        <location filename="src/helper/InitializrHelper.cpp" line="85"/>
         <source>%1 folder already exists</source>
         <translation type="unfinished"></translation>
     </message>
@@ -173,6 +173,11 @@
     <message>
         <location filename="qml/global/ItemsFooter.qml" line="24"/>
         <source>Settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/global/ItemsFooter.qml" line="34"/>
+        <source>FluentUI Pro</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -536,41 +541,46 @@
     </message>
     <message>
         <location filename="qml/global/ItemsOriginal.qml" line="436"/>
-        <source>QRCode</source>
+        <source>QCustomPlot</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="qml/global/ItemsOriginal.qml" line="442"/>
-        <source>Tour</source>
+        <source>QRCode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="qml/global/ItemsOriginal.qml" line="448"/>
-        <source>Timeline</source>
+        <source>Tour</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="qml/global/ItemsOriginal.qml" line="454"/>
-        <source>Captcha</source>
+        <source>Timeline</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="qml/global/ItemsOriginal.qml" line="460"/>
+        <source>Captcha</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/global/ItemsOriginal.qml" line="466"/>
         <source>Network</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/global/ItemsOriginal.qml" line="467"/>
+        <location filename="qml/global/ItemsOriginal.qml" line="473"/>
         <source>Remote Loader</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/global/ItemsOriginal.qml" line="481"/>
+        <location filename="qml/global/ItemsOriginal.qml" line="487"/>
         <source>Hot Loader</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/global/ItemsOriginal.qml" line="487"/>
+        <location filename="qml/global/ItemsOriginal.qml" line="493"/>
         <source>Test Crash</source>
         <translation type="unfinished"></translation>
     </message>
@@ -602,104 +612,104 @@
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="qml/window/MainWindow.qml" line="87"/>
-        <location filename="qml/window/MainWindow.qml" line="95"/>
+        <location filename="qml/window/MainWindow.qml" line="86"/>
+        <location filename="qml/window/MainWindow.qml" line="94"/>
         <source>Quit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/window/MainWindow.qml" line="88"/>
+        <location filename="qml/window/MainWindow.qml" line="87"/>
         <source>Are you sure you want to exit the program?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/window/MainWindow.qml" line="89"/>
+        <location filename="qml/window/MainWindow.qml" line="88"/>
         <source>Minimize</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/window/MainWindow.qml" line="92"/>
+        <location filename="qml/window/MainWindow.qml" line="91"/>
         <source>Friendly Reminder</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/window/MainWindow.qml" line="92"/>
+        <location filename="qml/window/MainWindow.qml" line="91"/>
         <source>FluentUI is hidden from the tray, click on the tray to activate the window again</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/window/MainWindow.qml" line="96"/>
-        <location filename="qml/window/MainWindow.qml" line="340"/>
+        <location filename="qml/window/MainWindow.qml" line="95"/>
+        <location filename="qml/window/MainWindow.qml" line="337"/>
         <source>Cancel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/window/MainWindow.qml" line="107"/>
+        <location filename="qml/window/MainWindow.qml" line="106"/>
         <source>Open in Separate Window</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/window/MainWindow.qml" line="204"/>
+        <location filename="qml/window/MainWindow.qml" line="203"/>
         <source>Click Time</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/window/MainWindow.qml" line="214"/>
+        <location filename="qml/window/MainWindow.qml" line="213"/>
         <source>Search</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/window/MainWindow.qml" line="305"/>
+        <location filename="qml/window/MainWindow.qml" line="302"/>
         <source>Finish</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/window/MainWindow.qml" line="306"/>
+        <location filename="qml/window/MainWindow.qml" line="303"/>
         <source>Next</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/window/MainWindow.qml" line="307"/>
+        <location filename="qml/window/MainWindow.qml" line="304"/>
         <source>Previous</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/window/MainWindow.qml" line="311"/>
+        <location filename="qml/window/MainWindow.qml" line="308"/>
         <source>Dark Mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/window/MainWindow.qml" line="311"/>
+        <location filename="qml/window/MainWindow.qml" line="308"/>
         <source>Here you can switch to night mode.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/window/MainWindow.qml" line="313"/>
+        <location filename="qml/window/MainWindow.qml" line="310"/>
         <source>Hide Easter eggs</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/window/MainWindow.qml" line="313"/>
+        <location filename="qml/window/MainWindow.qml" line="310"/>
         <source>Try a few more clicks!!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/window/MainWindow.qml" line="337"/>
+        <location filename="qml/window/MainWindow.qml" line="334"/>
         <source>Upgrade Tips</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/window/MainWindow.qml" line="338"/>
+        <location filename="qml/window/MainWindow.qml" line="335"/>
         <source>FluentUI is currently up to date </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/window/MainWindow.qml" line="338"/>
+        <location filename="qml/window/MainWindow.qml" line="335"/>
         <source> -- The current app version</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/window/MainWindow.qml" line="338"/>
+        <location filename="qml/window/MainWindow.qml" line="335"/>
         <source> 
 Now go and download the new version？
 
@@ -708,17 +718,17 @@ Updated content:
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/window/MainWindow.qml" line="341"/>
+        <location filename="qml/window/MainWindow.qml" line="338"/>
         <source>OK</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/window/MainWindow.qml" line="368"/>
+        <location filename="qml/window/MainWindow.qml" line="365"/>
         <source>The current version is already the latest</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/window/MainWindow.qml" line="375"/>
+        <location filename="qml/window/MainWindow.qml" line="372"/>
         <source>The network is abnormal</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1150,6 +1160,14 @@ Updated content:
     </message>
 </context>
 <context>
+    <name>T_CustomPlot</name>
+    <message>
+        <location filename="qml/page/T_CustomPlot.qml" line="10"/>
+        <source>QCustomPlot</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>T_DatePicker</name>
     <message>
         <location filename="qml/page/T_DatePicker.qml" line="10"/>
@@ -1360,22 +1378,32 @@ My only desire is to be permitted to drive out the traitors and restore the Han.
 <context>
     <name>T_Home</name>
     <message>
-        <location filename="qml/page/T_Home.qml" line="19"/>
+        <location filename="qml/page/T_Home.qml" line="28"/>
         <source>FluentUI GitHub</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/T_Home.qml" line="20"/>
+        <location filename="qml/page/T_Home.qml" line="29"/>
         <source>The latest FluentUI controls and styles for your applications.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/T_Home.qml" line="28"/>
+        <location filename="qml/page/T_Home.qml" line="19"/>
+        <source>FluentUI Pro</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/page/T_Home.qml" line="20"/>
+        <source>The latest FluentUI Pro controls and styles for your applications.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/page/T_Home.qml" line="37"/>
         <source>FluentUI Initializr</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/T_Home.qml" line="29"/>
+        <location filename="qml/page/T_Home.qml" line="38"/>
         <source>FluentUI Initializr is a Tool that helps you create and customize Fluent UI projects with various options.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2064,7 +2092,7 @@ Some contents...</source>
     </message>
     <message>
         <location filename="qml/page/T_TableView.qml" line="176"/>
-        <location filename="qml/page/T_TableView.qml" line="508"/>
+        <location filename="qml/page/T_TableView.qml" line="503"/>
         <source>Name</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2084,67 +2112,67 @@ Some contents...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/T_TableView.qml" line="364"/>
+        <location filename="qml/page/T_TableView.qml" line="359"/>
         <source>Age</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/T_TableView.qml" line="439"/>
+        <location filename="qml/page/T_TableView.qml" line="434"/>
         <source>Clear All</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/T_TableView.qml" line="446"/>
+        <location filename="qml/page/T_TableView.qml" line="441"/>
         <source>Delete Selection</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/T_TableView.qml" line="469"/>
+        <location filename="qml/page/T_TableView.qml" line="464"/>
         <source>Add a row of Data</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/T_TableView.qml" line="475"/>
+        <location filename="qml/page/T_TableView.qml" line="470"/>
         <source>Insert a Row</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/T_TableView.qml" line="482"/>
+        <location filename="qml/page/T_TableView.qml" line="477"/>
         <source>Focus not acquired: Please click any item in the form as the target for insertion!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/T_TableView.qml" line="513"/>
+        <location filename="qml/page/T_TableView.qml" line="508"/>
         <source>Avatar</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/T_TableView.qml" line="527"/>
+        <location filename="qml/page/T_TableView.qml" line="522"/>
         <source>Address</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/T_TableView.qml" line="535"/>
+        <location filename="qml/page/T_TableView.qml" line="530"/>
         <source>Nickname</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/T_TableView.qml" line="542"/>
+        <location filename="qml/page/T_TableView.qml" line="537"/>
         <source>Long String</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/T_TableView.qml" line="550"/>
+        <location filename="qml/page/T_TableView.qml" line="545"/>
         <source>Options</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/T_TableView.qml" line="568"/>
+        <location filename="qml/page/T_TableView.qml" line="563"/>
         <source>&lt;Previous</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="qml/page/T_TableView.qml" line="569"/>
+        <location filename="qml/page/T_TableView.qml" line="564"/>
         <source>Next&gt;</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2234,7 +2262,28 @@ Some contents...</source>
     <message>
         <location filename="qml/page/T_Theme.qml" line="123"/>
         <source>Open Blur Window</source>
+        <oldsource>Rounded Window</oldsource>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/page/T_Theme.qml" line="158"/>
+        <source>window tintOpacity</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/page/T_Theme.qml" line="175"/>
+        <source>window blurRadius</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/page/T_Theme.qml" line="135"/>
+        <source>window effect</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="qml/page/T_Theme.qml" line="178"/>
+        <source></source>
+        <translation></translation>
     </message>
 </context>
 <context>

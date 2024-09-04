@@ -15,9 +15,7 @@ CircularReveal::CircularReveal(QQuickItem *parent) : QQuickPaintedItem(parent) {
         setVisible(false);
         Q_EMIT animationFinished();
     });
-    connect(this, &CircularReveal::radiusChanged, this, [=]() {
-        update();
-    });
+    connect(this, &CircularReveal::radiusChanged, this, [=]() { update(); });
 }
 
 void CircularReveal::paint(QPainter *painter) {
@@ -27,16 +25,36 @@ void CircularReveal::paint(QPainter *painter) {
     path.moveTo(_center.x(), _center.y());
     path.addEllipse(QPointF(_center.x(), _center.y()), _radius, _radius);
     painter->setCompositionMode(QPainter::CompositionMode_Clear);
-    painter->fillPath(path, Qt::black);
+    if(_darkToLight){
+        painter->fillPath(path, Qt::white);
+    }else{
+        QPainterPath outerRect;
+        outerRect.addRect(0, 0, width(), height());
+        outerRect = outerRect.subtracted(path);
+        painter->fillPath(outerRect, Qt::black);
+    }
     painter->restore();
 }
 
 [[maybe_unused]] void CircularReveal::start(int w, int h, const QPoint &center, int radius) {
-    _anim->setStartValue(0);
-    _anim->setEndValue(radius);
+    if (_anim->state() == QAbstractAnimation::Running) {
+        _anim->stop();
+        int currentRadius = _radius;
+        _anim->setStartValue(currentRadius);
+        _anim->setEndValue(_darkToLight ? 0 : radius);
+    } else {
+        if(_darkToLight){
+            _anim->setStartValue(radius);
+            _anim->setEndValue(0);
+        }else{
+            _anim->setStartValue(0);
+            _anim->setEndValue(radius);
+        }
+    }
     _center = center;
     _grabResult = _target->grabToImage(QSize(w, h));
-    connect(_grabResult.data(), &QQuickItemGrabResult::ready, this, &CircularReveal::handleGrabResult);
+    connect(_grabResult.data(), &QQuickItemGrabResult::ready, this,
+            &CircularReveal::handleGrabResult);
 }
 
 void CircularReveal::handleGrabResult() {
