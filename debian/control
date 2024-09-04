@@ -5,15 +5,7 @@ Maintainer: LingmoOS <lingmo@lingmo.org>
 Build-Depends: cmake,
                debhelper (>= 9),
                extra-cmake-modules,
-               libkf5networkmanagerqt-dev,
-               libkf5kio-dev,
-               libkf5screen-dev,
-               libkf5bluezqt-dev,
-               modemmanager-qt-dev,
-               libqt5sensors5-dev,
-               libcanberra-dev,
-               libpulse-dev,
-               sound-theme-freedesktop,
+               libqt5x11extras5-dev
                qtbase5-dev,
                qtdeclarative5-dev,
                qtquickcontrols2-5-dev,
@@ -25,6 +17,5 @@ Homepage: https://lingmo.org
 Package: fluentui
 Architecture: any
 Depends: ${misc:Depends},
-         ${shlibs:Depends},
-         libkf5screen-bin
+         ${shlibs:Depends}
 Description: LingmoOS Library
