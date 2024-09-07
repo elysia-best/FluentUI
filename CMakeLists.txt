@@ -2,6 +2,24 @@ cmake_minimum_required(VERSION 3.20)
 
 project(FluentUI VERSION 1.0)
 
+find_package(ECM REQUIRED NO_MODULE)
+list(APPEND CMAKE_MODULE_PATH ${ECM_MODULE_PATH} ${ECM_KDE_MODULE_DIR})
+message(STATUS "ECM version: ${ECM_VERSION}")
+
+set(QT_SDK_DIR "${Qt${QT_VERSION_MAJOR}_DIR}")
+cmake_path(GET QT_SDK_DIR PARENT_PATH QT_SDK_DIR)
+cmake_path(GET QT_SDK_DIR PARENT_PATH QT_SDK_DIR)
+cmake_path(GET QT_SDK_DIR PARENT_PATH QT_SDK_DIR)
+
+if(ECM_VERSION VERSION_LESS 5.93.0)
+    include(ECMQueryQmake)
+    query_qmake(INSTALL_QMLDIR QT_INSTALL_QML)
+else()
+    include(ECMQueryQt)
+    ecm_query_qt(INSTALL_QMLDIR QT_INSTALL_QML)
+endif()
+
+
 if (MSVC)
     #让Release也生成pdb文件
     set(CMAKE_SHARED_LINKER_FLAGS_RELEASE "${CMAKE_SHARED_LINKER_FLAGS_RELEASE} /DEBUG /OPT:REF /OPT:ICF")
@@ -12,7 +30,7 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/.cmake/)
 
 include(GetGitRevisionDescription)
 
-option(FLUENTUI_BUILD_EXAMPLES "Build FluentUI demo applications." ON)
+option(FLUENTUI_BUILD_EXAMPLES "Build FluentUI demo applications." OFF)
 option(FLUENTUI_BUILD_STATIC_LIB "Build static library." OFF)
 
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core)
