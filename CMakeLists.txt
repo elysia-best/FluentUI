@@ -53,6 +53,7 @@ message("Build FluentUI demo applications.: ${FLUENTUI_BUILD_EXAMPLES}")
 message("Build static library.: ${FLUENTUI_BUILD_STATIC_LIB}")
 message("Path to FluentUI plugin.: ${FLUENTUI_QML_PLUGIN_DIRECTORY}")
 
+include(CMakePackageConfigHelpers)
 configure_package_config_file(
         "${CMAKE_CURRENT_SOURCE_DIR}/FluentUIConfig.cmake.in"
         "${CMAKE_CURRENT_BINARY_DIR}/FluentUIConfig.cmake"
