@@ -1,9 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
 
-find_package(ECM REQUIRED NO_MODULE)
-list(APPEND CMAKE_MODULE_PATH ${ECM_MODULE_PATH} ${ECM_KDE_MODULE_DIR})
-message(STATUS "ECM version: ${ECM_VERSION}")
-
 if (FLUENTUI_BUILD_STATIC_LIB AND (QT_VERSION VERSION_GREATER_EQUAL "6.2"))
     project(fluentui VERSION 1.0)
 else ()
@@ -34,20 +30,16 @@ endif ()
 option(FLUENTUI_BUILD_STATIC_LIB "Build static library." OFF)
 
 #导入Qt相关依赖包
-find_package(QT NAMES  Qt5 REQUIRED COMPONENTS Core Quick Qml Widgets PrintSupport)
+find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core Quick Qml Widgets PrintSupport)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Quick Widgets PrintSupport)
 
-if(ECM_VERSION VERSION_LESS 5.93.0)
-    include(ECMQueryQmake)
-    query_qmake(INSTALL_QMLDIR QT_INSTALL_QML)
-else()
-    include(ECMQueryQt)
-    ecm_query_qt(INSTALL_QMLDIR QT_INSTALL_QML)
-endif()
+set(QT_SDK_DIR "${Qt${QT_VERSION_MAJOR}_DIR}/../../..")
+cmake_path(SET QT_SDK_DIR NORMALIZE ${QT_SDK_DIR})
 
 #设置QML插件输出目录，可以通过外部设置，如果外部没有设置就默认到<QT_SDK_DIR_PATH>\qml\FluentUI目录下
+set(FLUENTUI_QML_PLUGIN_DIRECTORY "" CACHE PATH "Path to FluentUI plugin")
 if (NOT FLUENTUI_QML_PLUGIN_DIRECTORY)
-    set(FLUENTUI_QML_PLUGIN_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/FluentUI)
+    set(FLUENTUI_QML_PLUGIN_DIRECTORY ${QT_SDK_DIR}/qml/FluentUI)
 endif ()
 
 #国际化
@@ -92,7 +84,7 @@ if (WIN32)
 endif ()
 
 if (QT_VERSION VERSION_GREATER_EQUAL "6.2")
-    #删除fluentuiplugin.cpp与fluentuiplugin.h，这些只要Qt5使用，不需要
+    #删除fluentuiplugin.cpp与fluentuiplugin.h，这些只要Qt5使用，Qt6不需要
     list(REMOVE_ITEM sources_files fluentuiplugin.h fluentuiplugin.cpp)
     if (NOT FLUENTUI_BUILD_STATIC_LIB)
         list(REMOVE_ITEM sources_files FluentUI.h FluentUI.cpp)
@@ -151,7 +143,7 @@ if (WIN32)
 endif ()
 
 if (QT_VERSION VERSION_GREATER_EQUAL "6.2")
-    #如果是.2版本以上，则使用qt_add_library，qt_add_qml_module函数添加资源文件
+    #如果是Qt6.2版本以上，则使用qt_add_library，qt_add_qml_module函数添加资源文件
     if (FLUENTUI_BUILD_STATIC_LIB)
         set(FLUENTUI_QML_PLUGIN_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/FluentUI)
     endif ()
@@ -170,7 +162,7 @@ if (QT_VERSION VERSION_GREATER_EQUAL "6.2")
     )
 else ()
     qt_add_resources(QRC_RESOURCES Qt5/imports/fluentui.qrc)
-    #如果是.2版本以下，则使用add_qmlplugin函数添加资源文件，这是个自定义的函数，详情见.cmake/QmlPlugin.cmake
+    #如果是Qt6.2版本以下，则使用add_qmlplugin函数添加资源文件，这是个自定义的函数，详情见.cmake/QmlPlugin.cmake
     include(QmlPlugin)
     add_qmlplugin(${PROJECT_NAME}
             URI "FluentUI"
@@ -217,7 +209,7 @@ elseif(WIN32)
 elseif(UNIX)
     if(QT_VERSION_MAJOR STREQUAL "6")
         if(QT_VERSION VERSION_LESS "6.2.0")
-            message(FATAL_ERROR "Qt 6.2.0 or greater is required when using ")
+            message(FATAL_ERROR "Qt 6.2.0 or greater is required when using Qt6")
         endif()
     else()
         if(QT_VERSION_MAJOR LESS "6")
@@ -235,7 +227,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 if ((${QT_VERSION_MAJOR} LESS_EQUAL 6) AND (CMAKE_BUILD_TYPE MATCHES "Release"))
     find_program(QML_PLUGIN_DUMP NAMES qmlplugindump)
     add_custom_target(Script-Generate-QmlTypes
-            COMMAND ${QML_PLUGIN_DUMP} -nonrelocatable -noinstantiate FluentUI 1.0 ${CMAKE_CURRENT_BINARY_DIR} > ${CMAKE_CURRENT_SOURCE_DIR}/Qt5/imports/FluentUI/plugins.qmltypes
+            COMMAND ${QML_PLUGIN_DUMP} -nonrelocatable  FluentUI 1.0 ${CMAKE_CURRENT_BINARY_DIR} > ${CMAKE_CURRENT_SOURCE_DIR}/Qt5/imports/FluentUI/plugins.qmltypes
             COMMENT "Generate qmltypes........."
             SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/Qt5/imports/FluentUI/plugins.qmltypes
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
@@ -243,4 +235,4 @@ if ((${QT_VERSION_MAJOR} LESS_EQUAL 6) AND (CMAKE_BUILD_TYPE MATCHES "Release"))
 endif()
     
 #安装
-install(DIRECTORY ${FLUENTUI_QML_PLUGIN_DIRECTORY} DESTINATION ${CMAKE_BINARY_DIR}/import)
+install(DIRECTORY ${FLUENTUI_QML_PLUGIN_DIRECTORY} DESTINATION ${CMAKE_INSTALL_PREFIX}/imports)

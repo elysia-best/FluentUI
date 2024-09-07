@@ -10,7 +10,6 @@ class CircularReveal : public QQuickPaintedItem {
     Q_OBJECT
     Q_PROPERTY_AUTO_P(QQuickItem *, target)
     Q_PROPERTY_AUTO(int, radius)
-    Q_PROPERTY_AUTO(bool, darkToLight)
 public:
     explicit CircularReveal(QQuickItem *parent = nullptr);
     void paint(QPainter *painter) override;
