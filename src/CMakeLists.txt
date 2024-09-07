@@ -36,7 +36,7 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Quick Widgets PrintS
 #设置QML插件输出目录，可以通过外部设置，如果外部没有设置就默认到<QT_SDK_DIR_PATH>\qml\FluentUI目录下
 set(FLUENTUI_QML_PLUGIN_DIRECTORY "" CACHE PATH "Path to FluentUI plugin")
 if (NOT FLUENTUI_QML_PLUGIN_DIRECTORY)
-    set(FLUENTUI_QML_PLUGIN_DIRECTORY ${INSTALL_QMLDIR}/FluentUI)
+    set(FLUENTUI_QML_PLUGIN_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/FluentUI)
 endif ()
 
 #国际化
