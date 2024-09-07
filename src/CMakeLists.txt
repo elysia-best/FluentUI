@@ -233,3 +233,12 @@ endif()
     
 #安装
 install(DIRECTORY ${FLUENTUI_QML_PLUGIN_DIRECTORY} DESTINATION ${INSTALL_QMLDIR})
+
+include(CMakePackageConfigHelpers)
+set(CMAKECONFIG_INSTALL_DIR "${CMAKE_INSTALL_LIBDIR}/cmake/FluentUI")
+install(
+    TARGETS ${PROJECT_NAME}
+    EXPORT ${PROJECT_NAME}Targets
+    DESTINATION "${CMAKECONFIG_INSTALL_DIR}"
+    FILE FluentUITargets.cmake
+)

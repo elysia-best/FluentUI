@@ -77,11 +77,6 @@ write_basic_package_version_file(
         COMPATIBILITY AnyNewerVersion
 )
 
-install(EXPORT ${UI_PROJECT_EXPORT_NAME}Targets
-        DESTINATION "${CMAKECONFIG_INSTALL_DIR}"
-        FILE FluentUITargets.cmake
-)
-
 install(
         FILES
         "${CMAKE_CURRENT_BINARY_DIR}/FluentUIConfig.cmake"
