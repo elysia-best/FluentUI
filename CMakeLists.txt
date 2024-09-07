@@ -63,6 +63,11 @@ configure_package_config_file(
         PATH_VARS
         CMAKECONFIG_INSTALL_DIR CMAKE_INSTALL_PREFIX
 )
+write_basic_package_version_file(
+        ${CMAKE_CURRENT_BINARY_DIR}/FluentUIConfigVersion.cmake
+        VERSION 1.7.7
+        COMPATIBILITY AnyNewerVersion
+)
 install(
         FILES
         "${CMAKE_CURRENT_BINARY_DIR}/FluentUIConfig.cmake"
