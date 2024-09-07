@@ -37,7 +37,7 @@ endif()
 
 #设置QML插件输出目录，可以通过外部设置，如果外部没有设置就默认到<QT_SDK_DIR_PATH>\qml\FluentUI目录下
 set(FLUENTUI_QML_PLUGIN_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/debian/fluentui${INSTALL_QMLDIR})
-
+execute_process( COMMAND ${CMAKE_COMMAND} -E make_directory ${FLUENTUI_QML_PLUGIN_DIRECTORY})
 
 add_subdirectory(src)
 
