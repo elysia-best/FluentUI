@@ -30,7 +30,7 @@ jobs:
 
     - name: Build Package
       run: |
-        dpkg-buildpackage -b -uc -us -j$(nproc)
+        sudo dpkg-buildpackage -b -uc -us -j$(nproc)
 
     - name: Pack artifacts
       run: |
