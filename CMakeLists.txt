@@ -53,6 +53,14 @@ message("Build FluentUI demo applications.: ${FLUENTUI_BUILD_EXAMPLES}")
 message("Build static library.: ${FLUENTUI_BUILD_STATIC_LIB}")
 message("Path to FluentUI plugin.: ${FLUENTUI_QML_PLUGIN_DIRECTORY}")
 
+# Configuration for cmake
+
+if (FLUENTUI_BUILD_STATIC_LIB AND (QT_VERSION VERSION_GREATER_EQUAL "6.2"))
+    set(UI_PROJECT_EXPORT_NAME fluentui)
+else ()
+    set(UI_PROJECT_EXPORT_NAME fluentuiplugin)
+endif ()
+
 include(CMakePackageConfigHelpers)
 set(CMAKECONFIG_INSTALL_DIR "${CMAKE_INSTALL_LIBDIR}/cmake/FluentUI")
 configure_package_config_file(
@@ -68,6 +76,12 @@ write_basic_package_version_file(
         VERSION 1.7.7
         COMPATIBILITY AnyNewerVersion
 )
+
+install(EXPORT ${UI_PROJECT_EXPORT_NAME}Targets
+        DESTINATION "${CMAKECONFIG_INSTALL_DIR}"
+        FILE FluentUITargets.cmake
+)
+
 install(
         FILES
         "${CMAKE_CURRENT_BINARY_DIR}/FluentUIConfig.cmake"
