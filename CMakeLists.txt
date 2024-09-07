@@ -63,3 +63,10 @@ configure_package_config_file(
         PATH_VARS
         CMAKECONFIG_INSTALL_DIR CMAKE_INSTALL_PREFIX
 )
+install(
+        FILES
+        "${CMAKE_CURRENT_BINARY_DIR}/FluentUIConfig.cmake"
+        "${CMAKE_CURRENT_BINARY_DIR}/FluentUIConfigVersion.cmake"
+        DESTINATION
+        "${CMAKECONFIG_INSTALL_DIR}"
+)
