@@ -54,13 +54,6 @@ message("Build static library.: ${FLUENTUI_BUILD_STATIC_LIB}")
 message("Path to FluentUI plugin.: ${FLUENTUI_QML_PLUGIN_DIRECTORY}")
 
 # Configuration for cmake
-
-if (FLUENTUI_BUILD_STATIC_LIB AND (QT_VERSION VERSION_GREATER_EQUAL "6.2"))
-    set(UI_PROJECT_EXPORT_NAME fluentui)
-else ()
-    set(UI_PROJECT_EXPORT_NAME fluentuiplugin)
-endif ()
-
 include(CMakePackageConfigHelpers)
 set(CMAKECONFIG_INSTALL_DIR "${CMAKE_INSTALL_LIBDIR}/cmake/FluentUI")
 configure_package_config_file(
