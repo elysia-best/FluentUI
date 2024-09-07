@@ -12,7 +12,7 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/.cmake/)
 
 include(GetGitRevisionDescription)
 
-option(FLUENTUI_BUILD_EXAMPLES "Build FluentUI demo applications." ON)
+option(FLUENTUI_BUILD_EXAMPLES "Build FluentUI demo applications." OFF)
 option(FLUENTUI_BUILD_STATIC_LIB "Build static library." OFF)
 
 find_package(QT NAMES Qt5 REQUIRED COMPONENTS Core)
@@ -36,7 +36,7 @@ else()
 endif()
 
 #设置QML插件输出目录，可以通过外部设置，如果外部没有设置就默认到<QT_SDK_DIR_PATH>\qml\FluentUI目录下
-set(FLUENTUI_QML_PLUGIN_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/FluentUI)
+set(FLUENTUI_QML_PLUGIN_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/debian/fluentui${INSTALL_QMLDIR})
 
 
 add_subdirectory(src)
